@@ -49,37 +49,31 @@
         input, select { background: #000; border: 1px solid #333; color: white; padding: 10px; border-radius: 4px; width: 100%; box-sizing: border-box; margin-bottom: 10px; font-size: 0.9em; }
         .btn-red { background: var(--f1-red); border: none; color: white; padding: 12px; cursor: pointer; font-weight: bold; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* --- PLANTILLAS DE NOTICIAS (MODERNAS) --- */
+        /* --- PLANTILLAS DE NOTICIAS --- */
         #capture-area, #capture-area-prensa { 
             width: 340px; height: 440px; position: relative; 
             padding: 25px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;
             overflow: hidden; border: 1px solid #333;
         }
 
-        /* Tpl 1: Carbon Elite (F1) */
         .tpl-carbon { background: #000; background-image: linear-gradient(45deg, #0a0a0a 25%, #111 25%, #111 50%, #0a0a0a 50%, #0a0a0a 75%, #111 75%, #111 100%); background-size: 4px 4px; border-left: 10px solid var(--f1-red) !important; }
         .tpl-carbon .n-manager-name { color: white; text-shadow: 0 0 10px rgba(225, 6, 0, 0.5); }
         .tpl-carbon::before { content:''; position:absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(to bottom, rgba(225,6,0,0.1), transparent); }
 
-        /* Tpl 2: Neon Speed */
         .tpl-neon { background: #000; border: 1px solid #00ff88 !important; }
         .tpl-neon .n-badge { background: #00ff88; color: #000; }
         .tpl-neon .n-manager-name { color: #00ff88; font-family: 'Orbitron'; }
         .tpl-neon .n-main-title { color: #fff; }
         .tpl-neon::after { content:''; position:absolute; bottom:-50px; right:-50px; width:150px; height:150px; background: #00ff88; filter: blur(80px); opacity: 0.3; }
 
-        /* Tpl 3: Royal Gold */
         .tpl-royal { background: #050505; border: 2px solid #d4af37 !important; }
         .tpl-royal .n-badge { background: #d4af37; color: #000; }
         .tpl-royal .n-manager-name { color: #d4af37; letter-spacing: 2px; }
-        .tpl-royal .n-f1-decor { color: #1a1a1a !important; }
 
-        /* Tpl 4: Midnight Blue */
         .tpl-blue { background: #000510; border-right: 10px solid #0052cc !important; }
         .tpl-blue .n-badge { background: #0052cc; }
         .tpl-blue .n-manager-name { color: #fff; border-bottom: 2px solid #0052cc; display: inline-block; padding-bottom: 5px; }
 
-        /* Text Elements inside Cards */
         .n-badge { font-family: 'Orbitron'; font-weight: 900; font-size: 0.6em; padding: 4px 10px; display: inline-block; margin-bottom: 5px; z-index: 10; position: relative; border-radius: 2px; }
         .n-main-title { font-family: 'Orbitron'; font-weight: 900; font-size: 1.5em; text-transform: uppercase; color: white; z-index: 10; position: relative; margin: 0; }
         .n-manager-name { font-family: 'Orbitron'; font-weight: 900; font-size: 2.3em; line-height: 0.95; margin: 20px 0; z-index: 10; position: relative; text-transform: uppercase; }
@@ -104,16 +98,13 @@
     <button class="tab-btn admin-tab" onclick="switchTab('prensa', this)" style="display:none; color: #ffeb3b;">⚡ EDITOR DE PRENSA</button>
 </div>
 
-<!-- VISTA 1: MERCADO -->
 <div id="view-mercado" class="view active">
     <div class="main-container">
-        <!-- Feed -->
         <div class="col">
             <div class="col-header">Mercado Live</div>
             <div id="feed-list" style="overflow-y:auto; flex-grow: 1;"></div>
         </div>
 
-        <!-- Equipos -->
         <div class="col">
             <div class="col-header">
                 Gestión de Equipos
@@ -122,20 +113,24 @@
             <div id="admin-team-panel" class="admin-only" style="padding:15px; flex-direction: column; background:#1a1a24; display:none;">
                 <input type="text" id="new-team" placeholder="Nombre Equipo">
                 <input type="text" id="new-ceo" placeholder="Nombre CEO">
+                <!-- CATEGORÍAS CORREGIDAS -->
                 <select id="new-cat">
-                    <option>F1</option><option>K2</option><option>K6</option><option>F2</option>
+                    <option>F1</option>
+                    <option>F2</option>
+                    <option>F3</option>
+                    <option>F4</option>
+                    <option>F5</option>
+                    <option>K6</option>
                 </select>
                 <button class="btn-red" onclick="crearEquipo()">REGISTRAR</button>
             </div>
             <div id="team-grid" class="card-grid"></div>
         </div>
 
-        <!-- GENERADOR DE NOTICIAS (FIJO) -->
         <div class="col">
             <div class="col-header">Vista Previa Noticia</div>
             <div style="padding: 15px; display: flex; flex-direction: column; align-items: center; gap: 10px; background: #050505; height: 100%;">
                 
-                <!-- Opciones de Admin para la Imagen -->
                 <div class="admin-only" style="width: 100%; flex-direction: column; gap: 5px;">
                     <label style="font-size: 0.6em; color: #666; font-weight: bold;">PLANTILLA</label>
                     <select id="fichaje-tpl" onchange="updateFichajeCard()">
@@ -150,16 +145,13 @@
                     </div>
                 </div>
 
-                <!-- Card de Fichaje -->
                 <div id="capture-area" class="tpl-carbon">
                     <div class="n-f1-decor">IGP</div>
                     <div>
                         <div id="f-badge" class="n-badge" style="background:var(--f1-red); color:white;">MOVIMIENTO CONFIRMADO</div>
                         <div id="f-title" class="n-main-title">FICHAJE OFICIAL</div>
                     </div>
-
                     <div id="f-manager" class="n-manager-name">MANAGER<br>IGP</div>
-
                     <div class="n-footer">
                         <div>
                             <div id="f-details" class="n-details">LISTO PARA COMPETIR</div>
@@ -173,7 +165,6 @@
     </div>
 </div>
 
-<!-- VISTA 2: BASE DE DATOS -->
 <div id="view-db" class="view">
     <div class="admin-only" style="padding:20px; background:#1a1a24; margin:15px; border-radius:8px;">
         <input type="text" id="db-name" placeholder="Nombre del manager">
@@ -182,7 +173,6 @@
     <div id="db-list" class="card-grid"></div>
 </div>
 
-<!-- VISTA 3: EDITOR DE PRENSA (ADMIN ONLY) -->
 <div id="view-prensa" class="view">
     <div style="display: grid; grid-template-columns: 380px 1fr; height: 100%;">
         <div style="padding:25px; background:#111115; border-right: 1px solid #222;">
@@ -254,7 +244,7 @@
         if(document.getElementById('pass').value === "IGP2026") {
             isAdmin = true;
             document.getElementById('app-body').classList.add('admin-active');
-            renderTeams(); // Re-render to show admin buttons
+            renderTeams();
         } else { alert("Acceso denegado."); }
     }
 
@@ -270,7 +260,6 @@
         btn.classList.add('active');
     }
 
-    // UPDATES DE CARDS
     function updateFichajeCard() {
         const area = document.getElementById('capture-area');
         area.className = document.getElementById('fichaje-tpl').value;
@@ -310,7 +299,6 @@
         });
     }
 
-    // CORE LOGIC
     function registrarEnDB() {
         const n = document.getElementById('db-name').value;
         if(n) db.ref('managers_db').push(n);
