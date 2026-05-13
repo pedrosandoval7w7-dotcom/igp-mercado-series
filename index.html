@@ -4,74 +4,163 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IGP - Intercontinental Series Hub</title>
+    <!-- Firebase & Libraries -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
-        :root { --f1-red: #ff1801; --bg: #0c0c0e; --card: #18181e; --border: #2d2d37; --text: #e1e1e6; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        .top-nav { background: #111115; border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
+        :root { --f1-red: #e10600; --bg: #0c0c0e; --card: #18181e; --border: #2d2d37; --text: #e1e1e6; }
+        
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        .top-nav { background: #111115; border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+        
         .tabs { display: flex; background: #1a1a24; padding: 5px 20px; gap: 10px; border-bottom: 2px solid var(--f1-red); }
-        .tab-btn { background: none; border: none; color: #888; padding: 10px 20px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 0.8em; }
+        .tab-btn { background: none; border: none; color: #888; padding: 12px 20px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 0.75em; letter-spacing: 1px; transition: 0.3s; }
         .tab-btn.active { color: white; border-bottom: 2px solid white; }
+        
         .main-container { display: grid; grid-template-columns: 320px 1fr 380px; gap: 10px; padding: 10px; flex-grow: 1; overflow: hidden; }
-        .view { display: none; height: 100%; overflow-y: auto; }
+        .view { display: none; height: 100%; overflow-y: auto; background: #08080a; }
         .view.active { display: block; }
-        .col { background: #111115; border-radius: 4px; border: 1px solid var(--border); display: flex; flex-direction: column; height: 100%; }
-        .col-header { background: #1c1c24; padding: 12px; font-size: 0.85em; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid var(--border); }
-        .manager-list { padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
-        .m-item { background: #22222a; padding: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--f1-red); }
-        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; padding: 15px; }
-        .team-card { background: var(--card); border-radius: 6px; border: 1px solid var(--border); }
-        .team-head { background: linear-gradient(90deg, #1c1c24 0%, #14141a 100%); padding: 12px; font-weight: bold; display: flex; justify-content: space-between; }
-        .slot { background: #22222a; margin: 5px; padding: 8px; border-radius: 4px; }
-        .feed-item { border-left: 4px solid #00ff88; background: #1a1a22; margin: 8px; padding: 12px; font-size: 0.8em; border-radius: 4px; }
-        .admin-only { display: none; }
-        .admin-active .admin-only { display: block; }
-        input, select { background: #000; border: 1px solid #444; color: white; padding: 8px; border-radius: 3px; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
-        .btn-red { background: var(--f1-red); border: none; color: white; padding: 10px; cursor: pointer; font-weight: bold; border-radius: 3px; }
-        .btn-del { background: transparent; color: #555; border: 1px solid #333; cursor: pointer; padding: 2px 6px; font-size: 0.8em; }
+
+        .col { background: #111115; border-radius: 8px; border: 1px solid var(--border); display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+        .col-header { background: #1c1c24; padding: 12px; font-size: 0.75em; font-weight: 900; text-transform: uppercase; border-bottom: 1px solid var(--border); letter-spacing: 2px; color: var(--f1-red); }
+
+        /* Admin logic */
+        .admin-only { display: none !important; }
+        .admin-active .admin-only { display: flex !important; }
+        .admin-active .admin-tab { display: block !important; }
+
+        .feed-item { border-left: 4px solid #00ff88; background: #1a1a22; margin: 8px; padding: 12px; font-size: 0.8em; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .feed-item:hover { background: #252530; transform: translateX(5px); }
+
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; padding: 15px; }
+        .team-card { background: var(--card); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; }
+        .team-head { background: linear-gradient(90deg, #1c1c24 0%, #111115 100%); padding: 12px; font-weight: bold; border-bottom: 1px solid var(--border); }
+        .slot { background: #22222a; margin: 8px; padding: 10px; border-radius: 6px; border: 1px solid transparent; transition: 0.3s; }
+        .slot:hover { border-color: #444; }
+
+        input, select { background: #000; border: 1px solid #333; color: white; padding: 10px; border-radius: 4px; width: 100%; box-sizing: border-box; margin-bottom: 10px; font-size: 0.9em; }
+        .btn-red { background: var(--f1-red); border: none; color: white; padding: 12px; cursor: pointer; font-weight: bold; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-red:hover { opacity: 0.9; }
+
+        .news-editor-layout { display: grid; grid-template-columns: 400px 1fr; height: 100%; }
+        
+        #capture-area { 
+            width: 400px; height: 500px; background: #000; position: relative; 
+            padding: 30px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;
+            border-left: 5px solid var(--f1-red); border-top: 5px solid var(--f1-red);
+        }
+        #capture-area::after { content: ''; position: absolute; bottom: 0; right: 0; width: 100px; height: 5px; background: var(--f1-red); }
+        
+        .n-badge { background: var(--f1-red); color: white; padding: 4px 12px; font-family: 'Orbitron'; font-weight: 900; font-size: 0.7em; display: inline-block; margin-bottom: 20px; font-style: italic; }
+        .n-main-title { font-family: 'Orbitron'; font-weight: 900; font-size: 2.2em; line-height: 1; text-transform: uppercase; color: white; margin-bottom: 10px; }
+        .n-manager-name { font-family: 'Orbitron'; font-weight: 900; font-size: 3em; color: var(--f1-red); line-height: 0.9; margin: 20px 0; }
+        .n-footer { border-top: 1px solid #333; pt: 20px; display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body id="app-body">
 
 <div class="top-nav">
-    <div style="font-weight: 800;">IGP <span style="color:var(--f1-red)">MANAGER</span> | INTERCONTINENTAL</div>
-    <div style="display: flex; gap: 5px;">
-        <input type="password" id="pass" placeholder="Clave">
-        <button onclick="checkAdmin()" style="background:var(--f1-red); color:white; border:none; padding:5px 15px; cursor:pointer;">OK</button>
+    <div style="font-family: 'Orbitron'; font-weight: 900; letter-spacing: 2px;">IGP <span style="color:var(--f1-red)">INTERCONTINENTAL</span></div>
+    <div style="display: flex; gap: 8px;">
+        <input type="password" id="pass" placeholder="Admin Pass" style="width: 120px; margin: 0; padding: 5px;">
+        <button onclick="checkAdmin()" style="background:var(--f1-red); color:white; border:none; padding:5px 15px; cursor:pointer; font-weight:bold; border-radius:4px;">LOGIN</button>
     </div>
 </div>
 
 <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('mercado')">Mercado & Equipos</button>
-    <button class="tab-btn" onclick="switchTab('db')">Managers Intercontinental</button>
+    <button class="tab-btn active" onclick="switchTab('mercado', this)">Mercado & Equipos</button>
+    <button class="tab-btn" onclick="switchTab('db', this)">Base de Datos</button>
+    <button class="tab-btn admin-tab" onclick="switchTab('prensa', this)" style="display:none; color: #ffeb3b;">⚡ EDITOR DE PRENSA</button>
 </div>
 
+<!-- VISTA 1: MERCADO -->
 <div id="view-mercado" class="view active">
     <div class="main-container">
-        <div class="col"><div class="col-header">Mercado Live</div><div id="feed-list" style="overflow-y:auto;"></div></div>
         <div class="col">
-            <div class="col-header">Gestión de Equipos</div>
-            <div class="admin-only" style="padding:15px; background:#1a1a24;">
-                <input type="text" id="new-team" placeholder="Equipo">
-                <input type="text" id="new-ceo" placeholder="CEO">
-                <select id="new-cat">
-                    <option>F1</option><option>F2</option><option>F3</option><option>F4</option><option>F5</option><option>K6</option>
-                </select>
-                <button class="btn-red" onclick="crearEquipo()">REGISTRAR</button>
-            </div>
+            <div class="col-header">Mercado Live</div>
+            <div id="feed-list" style="overflow-y:auto;"></div>
+        </div>
+        <div class="col">
+            <div class="col-header">Equipos Oficiales</div>
             <div id="team-grid" class="card-grid"></div>
         </div>
-        <div class="col"><div class="col-header">Noticias</div><div id="news-preview" style="padding:20px; text-align:center; color:#444;">ACTIVO</div></div>
+        <div class="col">
+            <div class="col-header">Control de Categorías</div>
+            <div class="admin-only" style="padding:15px; flex-direction: column;">
+                <input type="text" id="new-team" placeholder="Nombre Equipo">
+                <input type="text" id="new-ceo" placeholder="Nombre CEO">
+                <select id="new-cat">
+                    <option>F1</option><option>F2</option><option>F3</option><option>F4</option><option>F5</option>
+                </select>
+                <button class="btn-red" onclick="crearEquipo()">REGISTRAR NUEVO EQUIPO</button>
+            </div>
+            <div style="padding:20px; text-align:center; color:#333;">Panel Administrativo</div>
+        </div>
     </div>
 </div>
 
+<!-- VISTA 2: BASE DE DATOS -->
 <div id="view-db" class="view">
-    <div class="db-form admin-only">
-        <input type="text" id="db-name" placeholder="Nombre Manager">
-        <button class="btn-red" onclick="registrarEnDB()">GUARDAR EN DB</button>
+    <div class="admin-only" style="padding:20px; background:#1a1a24; margin:15px; border-radius:8px;">
+        <input type="text" id="db-name" placeholder="Nombre completo del manager">
+        <button class="btn-red" onclick="registrarEnDB()">AÑADIR A LA LISTA</button>
     </div>
-    <div id="db-list" class="manager-list"></div>
+    <div id="db-list" class="card-grid"></div>
+</div>
+
+<!-- VISTA 3: EDITOR DE PRENSA (ADMIN ONLY) -->
+<div id="view-prensa" class="view">
+    <div class="news-editor-layout">
+        <!-- Controles -->
+        <div style="padding:30px; background:#111115; border-right: 1px solid #222;">
+            <h3 class="col-header">Configuración de Noticia</h3>
+            <label style="font-size: 0.7em; color: #666;">TITULAR SUPERIOR</label>
+            <input type="text" id="edit-badge" value="BREAKING NEWS" oninput="updateLiveCard()">
+            
+            <label style="font-size: 0.7em; color: #666;">TITULAR PRINCIPAL</label>
+            <input type="text" id="edit-title" value="FICHAJE OFICIAL" oninput="updateLiveCard()">
+            
+            <label style="font-size: 0.7em; color: #666;">NOMBRE DEL MANAGER</label>
+            <input type="text" id="edit-manager" value="NOMBRE MANAGER" oninput="updateLiveCard()">
+            
+            <label style="font-size: 0.7em; color: #666;">DETALLES / EQUIPO</label>
+            <input type="text" id="edit-details" value="DE EQUIPO A A EQUIPO B" oninput="updateLiveCard()">
+
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <button class="btn-red" onclick="descargarNoticia()" style="flex:1; background:#28a745;">DESCARGAR PNG</button>
+                <button class="btn-red" onclick="compartirNoticia()" style="flex:1;">COMPARTIR</button>
+            </div>
+            <p style="font-size: 0.7em; color: #444; margin-top: 15px;">* Puedes editar los textos manualmente o hacer clic en un movimiento del Mercado Live para cargar los datos automáticamente.</p>
+        </div>
+
+        <!-- Vista Previa del Canvas -->
+        <div style="display:flex; justify-content:center; align-items:center; background:#050505;">
+            <div id="capture-area">
+                <div style="z-index: 2;">
+                    <div id="card-badge" class="n-badge">BREAKING NEWS</div>
+                    <div id="card-title" class="n-main-title">FICHAJE OFICIAL</div>
+                    <div style="width: 40px; height: 4px; background: var(--f1-red);"></div>
+                </div>
+
+                <div id="card-manager" class="n-manager-name">MANAGER<br>IGP</div>
+
+                <div class="n-footer" style="z-index: 2;">
+                    <div>
+                        <div id="card-details" style="font-size: 0.8em; font-weight: bold; color: #ccc;">MERCADO DE FICHAJES 2026</div>
+                        <div style="font-size: 0.6em; color: var(--f1-red); font-weight: 900; letter-spacing: 2px;">INTERCONTINENTAL SERIES</div>
+                    </div>
+                    <div style="font-family: 'Orbitron'; font-weight: 900; font-size: 1.5em; opacity: 0.3;">IGP</div>
+                </div>
+
+                <!-- Decoración de fondo -->
+                <div style="position:absolute; top:-50px; right:-50px; font-size: 15em; font-weight: 900; color: #111; z-index: 1; pointer-events: none; font-style: italic;">F1</div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -86,6 +175,7 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    
     let isAdmin = false;
     let managersDB = ["Libre"];
     let dataCache = {};
@@ -94,15 +184,62 @@
         if(document.getElementById('pass').value === "IGP2026") {
             isAdmin = true;
             document.getElementById('app-body').classList.add('admin-active');
-            alert("ADMIN ACTIVADO");
+            alert("MODO ADMINISTRADOR ACTIVADO - Acceso a Editor de Prensa concedido.");
+        } else {
+            alert("Clave incorrecta");
         }
     }
 
-    function switchTab(tab) {
+    function switchTab(tabId, btn) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('view-' + tab).classList.add('active');
-        event.target.classList.add('active');
+        document.getElementById('view-' + tabId).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    function updateLiveCard() {
+        document.getElementById('card-badge').innerText = document.getElementById('edit-badge').value;
+        document.getElementById('card-title').innerText = document.getElementById('edit-title').value;
+        document.getElementById('card-manager').innerText = document.getElementById('edit-manager').value.toUpperCase();
+        document.getElementById('card-details').innerText = document.getElementById('edit-details').value.toUpperCase();
+    }
+
+    function autoCargarPrensa(nombre, origen, destino) {
+        document.getElementById('edit-badge').value = "MOVIMIENTO OFICIAL";
+        document.getElementById('edit-title').value = "FICHAJE CONFIRMADO";
+        document.getElementById('edit-manager').value = nombre;
+        document.getElementById('edit-details').value = `${origen} ➔ ${destino}`;
+        updateLiveCard();
+        
+        // Si es admin, cambiar de pestaña automáticamente para que lo vea
+        if(isAdmin) {
+            const btn = document.querySelector('.admin-tab');
+            switchTab('prensa', btn);
+        }
+    }
+
+    function descargarNoticia() {
+        const area = document.getElementById('capture-area');
+        html2canvas(area, { backgroundColor: '#000' }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'noticia_igp_' + Date.now() + '.png';
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        });
+    }
+
+    function compartirNoticia() {
+        const area = document.getElementById('capture-area');
+        html2canvas(area).then(canvas => {
+            canvas.toBlob(blob => {
+                const file = new File([blob], "noticia_igp.png", { type: "image/png" });
+                if (navigator.share) {
+                    navigator.share({ files: [file], title: 'Noticia IGP', text: '¡Última hora en la liga!' });
+                } else {
+                    alert("Tu navegador no soporta compartir archivos directamente. Usa el botón Descargar.");
+                }
+            });
+        });
     }
 
     function registrarEnDB() {
@@ -116,7 +253,10 @@
         list.innerHTML = ""; managersDB = ["Libre"];
         snap.forEach(c => {
             managersDB.push(c.val());
-            list.innerHTML += `<div class="m-item"><span>${c.val()}</span><button class="admin-only btn-del" onclick="db.ref('managers_db/${c.key}').remove()">X</button></div>`;
+            list.innerHTML += `<div class="slot" style="display:flex; justify-content:space-between; align-items:center;">
+                <span>${c.val()}</span>
+                <button class="admin-only" style="color:red; background:none; border:none; cursor:pointer;" onclick="db.ref('managers_db/${c.key}').remove()">✕</button>
+            </div>`;
         });
         renderTeams();
     });
@@ -130,24 +270,19 @@
 
     function asignar(catDest, teamDest, slot, nombre) {
         if(!isAdmin) return;
-        if(nombre === "Libre") { db.ref(`ligas/${catDest}/${teamDest}/${slot}`).set("Libre"); return; }
-
         let origen = "Agente Libre";
         for(let c in dataCache) {
             for(let t in dataCache[c]) {
                 for(let i=1; i<=4; i++) {
-                    if(dataCache[c][t]['m'+i] === nombre) {
+                    if(dataCache[c][t]['m'+i] === nombre && nombre !== "Libre") {
                         origen = t;
                         db.ref(`ligas/${c}/${t}/m${i}`).set("Libre");
                     }
                 }
             }
         }
-
         db.ref(`ligas/${catDest}/${teamDest}/${slot}`).set(nombre);
-        let msg = `<b>${nombre}</b> ficha por ${teamDest}`;
-        if(origen !== "Agente Libre") msg = `<b>${nombre}</b> pasa de ${origen} a ${teamDest}`;
-        db.ref('feed').push({ msg: msg, time: Date.now() });
+        if(nombre !== "Libre") db.ref('feed').push({ nombre, origen, destino: teamDest });
     }
 
     function renderTeams() {
@@ -157,16 +292,16 @@
             for(let c in dataCache) {
                 for(let t in dataCache[c]) {
                     const e = dataCache[c][t];
-                    let card = `<div class="team-card"><div class="team-head"><div>${t}<br><small>${c}</small></div><button class="admin-only btn-del" onclick="db.ref('ligas/${c}/${t}').remove()">X</button></div>`;
+                    let card = `<div class="team-card"><div class="team-head">${t} <small style="color:var(--f1-red)">[${c}]</small></div>`;
                     [1,2,3,4].forEach(n => {
                         const actual = e['m'+n];
-                        card += `<div class="slot"><small style="color:var(--f1-red)">M${n}</small><br>
-                            <span class="view-only">${actual}</span>
+                        card += `<div class="slot"><small style="font-weight:900; color:#555">SLOT M${n}</small><br>
+                            <span class="view-only" style="font-weight:bold;">${actual}</span>
                             <select class="admin-only" onchange="asignar('${c}','${t}','m${n}', this.value)">
                                 ${managersDB.map(m => `<option value="${m}" ${m === actual ? 'selected' : ''}>${m}</option>`).join('')}
                             </select></div>`;
                     });
-                    grid.innerHTML += card + `</div>`;
+                    grid.innerHTML += card + `<button class="admin-only btn-red" style="width:100%; border-radius:0; font-size:0.6em; padding:5px;" onclick="db.ref('ligas/${c}/${t}').remove()">ELIMINAR EQUIPO</button></div>`;
                 }
             }
         });
@@ -174,9 +309,17 @@
 
     db.ref('feed').limitToLast(15).on('value', snap => {
         const fl = document.getElementById('feed-list'); fl.innerHTML = "";
-        snap.forEach(c => { fl.innerHTML = `<div class="feed-item">${c.val().msg}</div>` + fl.innerHTML; });
+        snap.forEach(c => {
+            const d = c.val();
+            const item = document.createElement('div');
+            item.className = 'feed-item';
+            item.innerHTML = `<small style="color:var(--f1-red)">FICHAJE</small><br><b>${d.nombre}</b><br><span style="font-size:0.9em; color:#888;">${d.origen} ➔ ${d.destino}</span>`;
+            item.onclick = () => autoCargarPrensa(d.nombre, d.origen, d.destino);
+            fl.prepend(item);
+        });
     });
 
+    // Iniciar con la vista de mercado
     renderTeams();
 </script>
 </body>
