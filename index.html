@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
-        :root { --f1-red: #e10600; --bg: #0c0c0e; --card: #18181e; --border: #2d2d37; --text: #e1e1e6; }
+        :root { --f1-red: #e10600; --bg: #0c0c0e; --card: #18181e; --border: #2d2d37; --text: #e1e1e6; --accent: #00ff88; }
         
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
@@ -26,39 +26,57 @@
         .view.active { display: block; }
 
         .col { background: #111115; border-radius: 8px; border: 1px solid var(--border); display: flex; flex-direction: column; height: 100%; overflow: hidden; }
-        .col-header { background: #1c1c24; padding: 12px; font-size: 0.75em; font-weight: 900; text-transform: uppercase; border-bottom: 1px solid var(--border); letter-spacing: 2px; color: var(--f1-red); }
+        .col-header { background: #1c1c24; padding: 12px; font-size: 0.75em; font-weight: 900; text-transform: uppercase; border-bottom: 1px solid var(--border); letter-spacing: 2px; color: var(--f1-red); display: flex; justify-content: space-between; align-items: center; }
 
         /* Admin logic */
         .admin-only { display: none !important; }
         .admin-active .admin-only { display: flex !important; }
         .admin-active .admin-tab { display: block !important; }
 
-        .feed-item { border-left: 4px solid #00ff88; background: #1a1a22; margin: 8px; padding: 12px; font-size: 0.8em; border-radius: 4px; cursor: pointer; transition: 0.2s; }
-        .feed-item:hover { background: #252530; transform: translateX(5px); }
+        .feed-item { border-left: 4px solid var(--accent); background: #1a1a22; margin: 8px; padding: 12px; font-size: 0.8em; border-radius: 4px; cursor: pointer; transition: 0.2s; position: relative; }
+        .feed-item:hover { background: #252530; transform: translateX(5px); border-left-color: var(--f1-red); }
+        .feed-item::after { content: '➔'; position: absolute; right: 10px; top: 40%; opacity: 0; transition: 0.3s; color: var(--f1-red); }
+        .feed-item:hover::after { opacity: 1; }
 
         .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; padding: 15px; }
         .team-card { background: var(--card); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; }
         .team-head { background: linear-gradient(90deg, #1c1c24 0%, #111115 100%); padding: 12px; font-weight: bold; border-bottom: 1px solid var(--border); }
-        .slot { background: #22222a; margin: 8px; padding: 10px; border-radius: 6px; border: 1px solid transparent; transition: 0.3s; }
-        .slot:hover { border-color: #444; }
+        .slot { background: #22222a; margin: 8px; padding: 10px; border-radius: 6px; border: 1px solid transparent; transition: 0.3s; cursor: pointer; }
+        .slot:hover { border-color: var(--f1-red); }
 
         input, select { background: #000; border: 1px solid #333; color: white; padding: 10px; border-radius: 4px; width: 100%; box-sizing: border-box; margin-bottom: 10px; font-size: 0.9em; }
         .btn-red { background: var(--f1-red); border: none; color: white; padding: 12px; cursor: pointer; font-weight: bold; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; }
         .btn-red:hover { opacity: 0.9; }
 
-        .news-editor-layout { display: grid; grid-template-columns: 400px 1fr; height: 100%; }
-        
-        #capture-area { 
-            width: 400px; height: 500px; background: #000; position: relative; 
-            padding: 30px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;
-            border-left: 5px solid var(--f1-red); border-top: 5px solid var(--f1-red);
+        /* GENERADOR DE NOTICIAS ESTILO F1 */
+        #capture-area, #capture-area-prensa { 
+            width: 340px; height: 440px; background: #000; position: relative; 
+            padding: 25px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;
+            border: 2px solid var(--f1-red); overflow: hidden;
         }
-        #capture-area::after { content: ''; position: absolute; bottom: 0; right: 0; width: 100px; height: 5px; background: var(--f1-red); }
-        
-        .n-badge { background: var(--f1-red); color: white; padding: 4px 12px; font-family: 'Orbitron'; font-weight: 900; font-size: 0.7em; display: inline-block; margin-bottom: 20px; font-style: italic; }
-        .n-main-title { font-family: 'Orbitron'; font-weight: 900; font-size: 2.2em; line-height: 1; text-transform: uppercase; color: white; margin-bottom: 10px; }
-        .n-manager-name { font-family: 'Orbitron'; font-weight: 900; font-size: 3em; color: var(--f1-red); line-height: 0.9; margin: 20px 0; }
-        .n-footer { border-top: 1px solid #333; pt: 20px; display: flex; justify-content: space-between; align-items: center; }
+
+        /* Plantilla 1: F1 Classic */
+        .tpl-f1 { border-left: 8px solid var(--f1-red) !important; background: linear-gradient(135deg, #000 0%, #111 100%) !important; }
+        .tpl-f1 .n-manager-name { color: var(--f1-red); }
+
+        /* Plantilla 2: Gold/Dark */
+        .tpl-gold { border: 2px solid #d4af37 !important; background: radial-gradient(circle, #1a1a1a 0%, #000 100%) !important; }
+        .tpl-gold .n-badge { background: #d4af37 !important; }
+        .tpl-gold .n-manager-name { color: #d4af37; }
+        .tpl-gold .n-f1-decor { color: #222 !important; }
+
+        /* Plantilla 3: High Contrast */
+        .tpl-white { background: #eee !important; border: 4px solid #000 !important; }
+        .tpl-white .n-main-title, .tpl-white .n-details, .tpl-white .n-footer-text { color: #000 !important; }
+        .tpl-white .n-manager-name { color: #e10600; text-shadow: 2px 2px 0px #ccc; }
+        .tpl-white .n-f1-decor { color: #ddd !important; }
+
+        .n-badge { background: var(--f1-red); color: white; padding: 4px 10px; font-family: 'Orbitron'; font-weight: 900; font-size: 0.6em; display: inline-block; margin-bottom: 10px; }
+        .n-main-title { font-family: 'Orbitron'; font-weight: 900; font-size: 1.6em; line-height: 1; text-transform: uppercase; color: white; z-index: 5; position: relative; }
+        .n-manager-name { font-family: 'Orbitron'; font-weight: 900; font-size: 2.2em; line-height: 0.9; margin: 15px 0; z-index: 5; position: relative; text-transform: uppercase; }
+        .n-details { font-size: 0.75em; font-weight: bold; color: #aaa; text-transform: uppercase; z-index: 5; position: relative; }
+        .n-footer { border-top: 1px solid #333; padding-top: 15px; display: flex; justify-content: space-between; align-items: center; z-index: 5; position: relative; }
+        .n-f1-decor { position:absolute; top:-20px; right:-20px; font-size: 10em; font-weight: 900; color: #111; z-index: 1; pointer-events: none; font-style: italic; opacity: 0.5; font-family: 'Orbitron'; }
     </style>
 </head>
 <body id="app-body">
@@ -77,28 +95,73 @@
     <button class="tab-btn admin-tab" onclick="switchTab('prensa', this)" style="display:none; color: #ffeb3b;">⚡ EDITOR DE PRENSA</button>
 </div>
 
-<!-- VISTA 1: MERCADO -->
+<!-- VISTA 1: MERCADO & GENERADOR LATERAL -->
 <div id="view-mercado" class="view active">
     <div class="main-container">
+        <!-- Mercado Live -->
         <div class="col">
             <div class="col-header">Mercado Live</div>
-            <div id="feed-list" style="overflow-y:auto;"></div>
+            <div id="feed-list" style="overflow-y:auto; flex-grow: 1;"></div>
         </div>
+
+        <!-- Equipos -->
         <div class="col">
-            <div class="col-header">Equipos Oficiales</div>
-            <div id="team-grid" class="card-grid"></div>
-        </div>
-        <div class="col">
-            <div class="col-header">Control de Categorías</div>
-            <div class="admin-only" style="padding:15px; flex-direction: column;">
+            <div class="col-header">
+                Gestión de Equipos
+                <button class="admin-only" onclick="toggleAddTeam()" style="font-size:0.6em; background:var(--accent); color:black; border:none; padding:4px 8px; border-radius:3px; cursor:pointer;">+ EQUIPO</button>
+            </div>
+            <div id="admin-team-panel" class="admin-only" style="padding:15px; flex-direction: column; background:#1a1a24; display:none;">
                 <input type="text" id="new-team" placeholder="Nombre Equipo">
                 <input type="text" id="new-ceo" placeholder="Nombre CEO">
                 <select id="new-cat">
-                    <option>F1</option><option>F2</option><option>F3</option><option>F4</option><option>F5</option>
+                    <option>F1</option><option>K2</option><option>K6</option><option>F2</option>
                 </select>
-                <button class="btn-red" onclick="crearEquipo()">REGISTRAR NUEVO EQUIPO</button>
+                <button class="btn-red" onclick="crearEquipo()">REGISTRAR</button>
             </div>
-            <div style="padding:20px; text-align:center; color:#333;">Panel Administrativo</div>
+            <div id="team-grid" class="card-grid"></div>
+        </div>
+
+        <!-- GENERADOR DE NOTICIAS DE FICHAJE (FIJO A LA DERECHA) -->
+        <div class="col">
+            <div class="col-header">Generador de Fichajes</div>
+            <div style="padding: 15px; display: flex; flex-direction: column; align-items: center; gap: 15px; background: #0a0a0c; height: 100%;">
+                
+                <!-- Selector de Plantilla -->
+                <div style="width: 100%;">
+                    <label style="font-size: 0.65em; color: #666; font-weight: bold;">ESTILO DE IMAGEN</label>
+                    <select id="fichaje-tpl" onchange="updateFichajeCard()" style="margin-top: 5px;">
+                        <option value="tpl-f1">F1 Clásico (Rojo)</option>
+                        <option value="tpl-gold">Edición Oro (VIP)</option>
+                        <option value="tpl-white">Contraste (Blanco)</option>
+                    </select>
+                </div>
+
+                <!-- Card de Fichaje -->
+                <div id="capture-area" class="tpl-f1">
+                    <div class="n-f1-decor">IGP</div>
+                    <div style="z-index: 5;">
+                        <div id="f-badge" class="n-badge">BREAKING NEWS</div>
+                        <div id="f-title" class="n-main-title">FICHAJE OFICIAL</div>
+                        <div style="width: 40px; height: 4px; background: var(--f1-red); margin-top: 10px;"></div>
+                    </div>
+
+                    <div id="f-manager" class="n-manager-name">MANAGER<br>IGP</div>
+
+                    <div class="n-footer">
+                        <div>
+                            <div id="f-details" class="n-details">LISTO PARA COMPETIR</div>
+                            <div class="n-footer-text" style="font-size: 0.6em; color: var(--f1-red); font-weight: 900; letter-spacing: 2px;">INTERCONTINENTAL SERIES</div>
+                        </div>
+                        <div style="font-family: 'Orbitron'; font-weight: 900; font-size: 1.2em; opacity: 0.3; color: white;">IGP</div>
+                    </div>
+                </div>
+
+                <div style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="btn-red" onclick="descargarImg('capture-area')" style="background:#28a745; font-size: 0.7em;">DESCARGAR</button>
+                    <button class="btn-red" onclick="compartirImg('capture-area')" style="font-size: 0.7em;">COMPARTIR</button>
+                </div>
+                <p style="font-size: 0.65em; color: #444; text-align: center;">Haz clic en un movimiento del feed para actualizar esta imagen automáticamente.</p>
+            </div>
         </div>
     </div>
 </div>
@@ -112,52 +175,52 @@
     <div id="db-list" class="card-grid"></div>
 </div>
 
-<!-- VISTA 3: EDITOR DE PRENSA (ADMIN ONLY) -->
+<!-- VISTA 3: EDITOR DE PRENSA INDEPENDIENTE (ADMIN ONLY) -->
 <div id="view-prensa" class="view">
-    <div class="news-editor-layout">
-        <!-- Controles -->
+    <div style="display: grid; grid-template-columns: 400px 1fr; height: 100%;">
         <div style="padding:30px; background:#111115; border-right: 1px solid #222;">
-            <h3 class="col-header">Configuración de Noticia</h3>
-            <label style="font-size: 0.7em; color: #666;">TITULAR SUPERIOR</label>
-            <input type="text" id="edit-badge" value="BREAKING NEWS" oninput="updateLiveCard()">
+            <h3 class="col-header">Editor de Prensa Libre</h3>
             
-            <label style="font-size: 0.7em; color: #666;">TITULAR PRINCIPAL</label>
-            <input type="text" id="edit-title" value="FICHAJE OFICIAL" oninput="updateLiveCard()">
+            <label style="font-size: 0.7em; color: #666;">PLANTILLA</label>
+            <select id="prensa-tpl" onchange="updatePrensaCard()">
+                <option value="tpl-f1">F1 Red</option>
+                <option value="tpl-gold">Gold Elite</option>
+                <option value="tpl-white">Light Mode</option>
+            </select>
+
+            <label style="font-size: 0.7em; color: #666;">CABECERA</label>
+            <input type="text" id="p-edit-badge" value="AVISO OFICIAL" oninput="updatePrensaCard()">
             
-            <label style="font-size: 0.7em; color: #666;">NOMBRE DEL MANAGER</label>
-            <input type="text" id="edit-manager" value="NOMBRE MANAGER" oninput="updateLiveCard()">
+            <label style="font-size: 0.7em; color: #666;">TITULAR</label>
+            <input type="text" id="p-edit-title" value="SANCIÓN DE TIEMPO" oninput="updatePrensaCard()">
             
-            <label style="font-size: 0.7em; color: #666;">DETALLES / EQUIPO</label>
-            <input type="text" id="edit-details" value="DE EQUIPO A A EQUIPO B" oninput="updateLiveCard()">
+            <label style="font-size: 0.7em; color: #666;">PROTAGONISTA</label>
+            <input type="text" id="p-edit-manager" value="MANAGER NAME" oninput="updatePrensaCard()">
+            
+            <label style="font-size: 0.7em; color: #666;">DESCRIPCIÓN</label>
+            <textarea id="p-edit-details" oninput="updatePrensaCard()" style="width:100%; background:#000; color:white; border:1px solid #333; padding:10px; height:80px; border-radius:4px; font-family:inherit;">Exceso de velocidad en Pit Lane +5s</textarea>
 
             <div style="margin-top: 20px; display: flex; gap: 10px;">
-                <button class="btn-red" onclick="descargarNoticia()" style="flex:1; background:#28a745;">DESCARGAR PNG</button>
-                <button class="btn-red" onclick="compartirNoticia()" style="flex:1;">COMPARTIR</button>
+                <button class="btn-red" onclick="descargarImg('capture-area-prensa')" style="flex:1; background:#28a745;">PNG</button>
+                <button class="btn-red" onclick="compartirImg('capture-area-prensa')" style="flex:1;">WHATSAPP</button>
             </div>
-            <p style="font-size: 0.7em; color: #444; margin-top: 15px;">* Puedes editar los textos manualmente o hacer clic en un movimiento del Mercado Live para cargar los datos automáticamente.</p>
         </div>
 
-        <!-- Vista Previa del Canvas -->
         <div style="display:flex; justify-content:center; align-items:center; background:#050505;">
-            <div id="capture-area">
-                <div style="z-index: 2;">
-                    <div id="card-badge" class="n-badge">BREAKING NEWS</div>
-                    <div id="card-title" class="n-main-title">FICHAJE OFICIAL</div>
-                    <div style="width: 40px; height: 4px; background: var(--f1-red);"></div>
+            <div id="capture-area-prensa" class="tpl-f1">
+                <div class="n-f1-decor">PRENSA</div>
+                <div>
+                    <div id="p-badge" class="n-badge">AVISO OFICIAL</div>
+                    <div id="p-title" class="n-main-title">SANCIÓN DE TIEMPO</div>
+                    <div style="width: 40px; height: 4px; background: var(--f1-red); margin-top: 10px;"></div>
                 </div>
-
-                <div id="card-manager" class="n-manager-name">MANAGER<br>IGP</div>
-
-                <div class="n-footer" style="z-index: 2;">
+                <div id="p-manager" class="n-manager-name">MANAGER NAME</div>
+                <div class="n-footer">
                     <div>
-                        <div id="card-details" style="font-size: 0.8em; font-weight: bold; color: #ccc;">MERCADO DE FICHAJES 2026</div>
-                        <div style="font-size: 0.6em; color: var(--f1-red); font-weight: 900; letter-spacing: 2px;">INTERCONTINENTAL SERIES</div>
+                        <div id="p-details" class="n-details">EXCESO DE VELOCIDAD</div>
+                        <div style="font-size: 0.6em; color: var(--f1-red); font-weight: 900; letter-spacing: 2px;">INTERCONTINENTAL PRESS</div>
                     </div>
-                    <div style="font-family: 'Orbitron'; font-weight: 900; font-size: 1.5em; opacity: 0.3;">IGP</div>
                 </div>
-
-                <!-- Decoración de fondo -->
-                <div style="position:absolute; top:-50px; right:-50px; font-size: 15em; font-weight: 900; color: #111; z-index: 1; pointer-events: none; font-style: italic;">F1</div>
             </div>
         </div>
     </div>
@@ -184,10 +247,13 @@
         if(document.getElementById('pass').value === "IGP2026") {
             isAdmin = true;
             document.getElementById('app-body').classList.add('admin-active');
-            alert("MODO ADMINISTRADOR ACTIVADO - Acceso a Editor de Prensa concedido.");
-        } else {
-            alert("Clave incorrecta");
-        }
+            alert("ADMIN: Editor de Prensa y Gestión de Equipos habilitados.");
+        } else { alert("Clave incorrecta"); }
+    }
+
+    function toggleAddTeam() {
+        const p = document.getElementById('admin-team-panel');
+        p.style.display = p.style.display === 'none' ? 'flex' : 'none';
     }
 
     function switchTab(tabId, btn) {
@@ -197,51 +263,53 @@
         btn.classList.add('active');
     }
 
-    function updateLiveCard() {
-        document.getElementById('card-badge').innerText = document.getElementById('edit-badge').value;
-        document.getElementById('card-title').innerText = document.getElementById('edit-title').value;
-        document.getElementById('card-manager').innerText = document.getElementById('edit-manager').value.toUpperCase();
-        document.getElementById('card-details').innerText = document.getElementById('edit-details').value.toUpperCase();
-    }
-
-    function autoCargarPrensa(nombre, origen, destino) {
-        document.getElementById('edit-badge').value = "MOVIMIENTO OFICIAL";
-        document.getElementById('edit-title').value = "FICHAJE CONFIRMADO";
-        document.getElementById('edit-manager').value = nombre;
-        document.getElementById('edit-details').value = `${origen} ➔ ${destino}`;
-        updateLiveCard();
-        
-        // Si es admin, cambiar de pestaña automáticamente para que lo vea
-        if(isAdmin) {
-            const btn = document.querySelector('.admin-tab');
-            switchTab('prensa', btn);
-        }
-    }
-
-    function descargarNoticia() {
+    // UPDATES DE CARDS
+    function updateFichajeCard() {
         const area = document.getElementById('capture-area');
-        html2canvas(area, { backgroundColor: '#000' }).then(canvas => {
+        area.className = document.getElementById('fichaje-tpl').value;
+    }
+
+    function updatePrensaCard() {
+        const area = document.getElementById('capture-area-prensa');
+        area.className = document.getElementById('prensa-tpl').value;
+        document.getElementById('p-badge').innerText = document.getElementById('p-edit-badge').value;
+        document.getElementById('p-title').innerText = document.getElementById('p-edit-title').value;
+        document.getElementById('p-manager').innerText = document.getElementById('p-edit-manager').value.toUpperCase();
+        document.getElementById('p-details').innerText = document.getElementById('p-edit-details').value.toUpperCase();
+    }
+
+    function autoCargarFichaje(nombre, origen, destino) {
+        document.getElementById('f-badge').innerText = "MOVIMIENTO CONFIRMADO";
+        document.getElementById('f-title').innerText = "FICHAJE OFICIAL";
+        document.getElementById('f-manager').innerText = nombre.toUpperCase();
+        document.getElementById('f-details').innerText = `${origen} ➔ ${destino}`;
+        updateFichajeCard();
+    }
+
+    // CAPTURE & SHARE
+    function descargarImg(id) {
+        const area = document.getElementById(id);
+        html2canvas(area, { backgroundColor: null }).then(canvas => {
             const link = document.createElement('a');
-            link.download = 'noticia_igp_' + Date.now() + '.png';
+            link.download = `igp_news_${Date.now()}.png`;
             link.href = canvas.toDataURL("image/png");
             link.click();
         });
     }
 
-    function compartirNoticia() {
-        const area = document.getElementById('capture-area');
+    function compartirImg(id) {
+        const area = document.getElementById(id);
         html2canvas(area).then(canvas => {
             canvas.toBlob(blob => {
                 const file = new File([blob], "noticia_igp.png", { type: "image/png" });
                 if (navigator.share) {
-                    navigator.share({ files: [file], title: 'Noticia IGP', text: '¡Última hora en la liga!' });
-                } else {
-                    alert("Tu navegador no soporta compartir archivos directamente. Usa el botón Descargar.");
-                }
+                    navigator.share({ files: [file], title: 'IGP News', text: 'Última hora en la liga' });
+                } else { alert("Descarga la imagen para compartir."); }
             });
         });
     }
 
+    // DATABASE LOGIC
     function registrarEnDB() {
         const n = document.getElementById('db-name').value;
         if(n) db.ref('managers_db').push(n);
@@ -253,8 +321,8 @@
         list.innerHTML = ""; managersDB = ["Libre"];
         snap.forEach(c => {
             managersDB.push(c.val());
-            list.innerHTML += `<div class="slot" style="display:flex; justify-content:space-between; align-items:center;">
-                <span>${c.val()}</span>
+            list.innerHTML += `<div class="slot" style="display:flex; justify-content:space-between; align-items:center; background:#1a1a24;">
+                <span style="font-size:0.85em;">${c.val()}</span>
                 <button class="admin-only" style="color:red; background:none; border:none; cursor:pointer;" onclick="db.ref('managers_db/${c.key}').remove()">✕</button>
             </div>`;
         });
@@ -266,6 +334,7 @@
         const c = document.getElementById('new-ceo').value;
         const cat = document.getElementById('new-cat').value;
         if(t && c) db.ref(`ligas/${cat}/${t}`).set({ ceo: c, m1: "Libre", m2: "Libre", m3: "Libre", m4: "Libre" });
+        toggleAddTeam();
     }
 
     function asignar(catDest, teamDest, slot, nombre) {
@@ -292,16 +361,17 @@
             for(let c in dataCache) {
                 for(let t in dataCache[c]) {
                     const e = dataCache[c][t];
-                    let card = `<div class="team-card"><div class="team-head">${t} <small style="color:var(--f1-red)">[${c}]</small></div>`;
+                    let card = `<div class="team-card"><div class="team-head"><span style="color:var(--accent)">${c}</span> | ${t}</div>`;
                     [1,2,3,4].forEach(n => {
                         const actual = e['m'+n];
-                        card += `<div class="slot"><small style="font-weight:900; color:#555">SLOT M${n}</small><br>
-                            <span class="view-only" style="font-weight:bold;">${actual}</span>
+                        card += `<div class="slot" onclick="autoCargarFichaje('${actual}', '${t}', 'PENDIENTE')">
+                            <small style="color:#555; font-size:0.6em;">PILOTO [1-${n}]</small><br>
+                            <span class="view-only" style="font-weight:bold; font-size:0.85em;">${actual}</span>
                             <select class="admin-only" onchange="asignar('${c}','${t}','m${n}', this.value)">
                                 ${managersDB.map(m => `<option value="${m}" ${m === actual ? 'selected' : ''}>${m}</option>`).join('')}
                             </select></div>`;
                     });
-                    grid.innerHTML += card + `<button class="admin-only btn-red" style="width:100%; border-radius:0; font-size:0.6em; padding:5px;" onclick="db.ref('ligas/${c}/${t}').remove()">ELIMINAR EQUIPO</button></div>`;
+                    grid.innerHTML += card + `</div>`;
                 }
             }
         });
@@ -313,13 +383,12 @@
             const d = c.val();
             const item = document.createElement('div');
             item.className = 'feed-item';
-            item.innerHTML = `<small style="color:var(--f1-red)">FICHAJE</small><br><b>${d.nombre}</b><br><span style="font-size:0.9em; color:#888;">${d.origen} ➔ ${d.destino}</span>`;
-            item.onclick = () => autoCargarPrensa(d.nombre, d.origen, d.destino);
+            item.innerHTML = `<small style="color:var(--f1-red); font-weight:900;">CONFIRMADO</small><br><b>${d.nombre}</b><br><span style="font-size:0.8em; color:#888;">${d.origen} ➔ ${d.destino}</span>`;
+            item.onclick = () => autoCargarFichaje(d.nombre, d.origen, d.destino);
             fl.prepend(item);
         });
     });
 
-    // Iniciar con la vista de mercado
     renderTeams();
 </script>
 </body>
