@@ -3,30 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IGP - Internacional Series Hub</title>
+    <title>Admin - Internacional Series Hub</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
-        :root { --f1-red: #e10600; --carbon: #15151e; --card-bg: #1f1f27; --gold: #c69c6d; }
+        :root { --f1-red: #e10600; --carbon: #121212; --card-bg: #1e1e26; --gold: #c69c6d; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--carbon); color: white; margin: 0; padding: 20px; }
-        .header { border-bottom: 3px solid var(--f1-red); padding-bottom: 10px; margin-bottom: 20px; text-align: left; }
-        .grid-equipos { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .card { background: var(--card-bg); border-radius: 8px; border-top: 4px solid var(--f1-red); padding: 15px; }
-        .team-name { color: var(--gold); font-weight: bold; font-size: 1.2em; margin-bottom: 5px; }
-        .manager { font-size: 0.9em; opacity: 0.7; margin-bottom: 15px; }
-        .slot { background: #2a2a35; padding: 8px; margin: 5px 0; border-radius: 4px; display: flex; justify-content: space-between; font-size: 0.9em; }
-        .btn-edit { background: var(--f1-red); color: white; border: none; padding: 10px; width: 100%; border-radius: 4px; cursor: pointer; margin-top: 10px; font-weight: bold; }
+        
+        /* Panel de Administración */
+        .admin-panel { background: #252530; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #444; }
+        .admin-panel input, .admin-panel select { padding: 10px; margin: 5px; border-radius: 4px; border: none; }
+        .btn-add { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+
+        /* Grid de Equipos */
+        .categoria-label { color: var(--f1-red); font-size: 1.5em; margin-top: 30px; border-left: 5px solid var(--f1-red); padding-left: 10px; }
+        .grid-equipos { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 15px; }
+        .card { background: var(--card-bg); border-radius: 8px; padding: 15px; border-bottom: 4px solid var(--gold); }
+        .slot { background: #2a2a35; padding: 8px; margin: 5px 0; border-radius: 4px; font-size: 0.85em; display: flex; justify-content: space-between; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>INTERCONTINENTAL SERIES</h1>
-        <p>Categoría: FÓRMULA 1 (8 Equipos)</p>
+    <h1>ADMINISTRACIÓN - INTERCONTINENTAL SERIES</h1>
+
+    <!-- FORMULARIO PARA QUE TÚ AGREGUES LOS EQUIPOS -->
+    <div class="admin-panel">
+        <h3>Añadir Nuevo Equipo</h3>
+        <select id="reg-categoria">
+            <option value="F1">Fórmula 1</option>
+            <option value="K1">Categoría K1</option>
+            <option value="K2">Categoría K2</option>
+            <option value="K6">Categoría K6</option>
+        </select>
+        <input type="text" id="reg-equipo" placeholder="Nombre del Equipo">
+        <input type="text" id="reg-manager" placeholder="Nombre del Mánager">
+        <button class="btn-add" onclick="guardarEquipo()">+ REGISTRAR EQUIPO</button>
     </div>
 
-    <div class="grid-equipos" id="contenedor-equipos">
-        <!-- Los 8 equipos se generarán aquí automáticamente -->
+    <div id="pantalla-principal">
+        <!-- Aquí se cargarán las categorías y equipos automáticamente -->
     </div>
 
     <script>
@@ -43,23 +58,50 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Generar 8 equipos vacíos por defecto si no existen
-        const contenedor = document.getElementById('contenedor-equipos');
-        
-        for(let i = 1; i <= 8; i++) {
-            let card = `
-                <div class="card">
-                    <div class="team-name">Equipo #${i}</div>
-                    <div class="manager">Mánager: Sin asignar</div>
-                    <div class="slot"><span>P1:</span> <span id="e${i}-p1">Vacío</span></div>
-                    <div class="slot"><span>P2:</span> <span id="e${i}-p2">Vacío</span></div>
-                    <div class="slot"><span>P3:</span> <span id="e${i}-p3">Vacío</span></div>
-                    <div class="slot"><span>P4:</span> <span id="e${i}-p4">Vacío</span></div>
-                    <button class="btn-edit" onclick="alert('Pronto: Panel de edición para Equipo ${i}')">EDITAR EQUIPO</button>
-                </div>
-            `;
-            contenedor.innerHTML += card;
+        // FUNCIÓN PARA GUARDAR EN FIREBASE
+        function guardarEquipo() {
+            const cat = document.getElementById('reg-categoria').value;
+            const equipo = document.getElementById('reg-equipo').value;
+            const manager = document.getElementById('reg-manager').value;
+
+            if(equipo === "" || manager === "") return alert("Llena todos los campos");
+
+            // Guardamos en la carpeta de la categoría elegida
+            db.ref('ligas/' + cat + '/' + equipo).set({
+                manager: manager,
+                p1: "Vacío", p2: "Vacío", p3: "Vacío", p4: "Vacío"
+            });
+            
+            alert("Equipo registrado en " + cat);
         }
+
+        // ESCUCHAR CAMBIOS EN TIEMPO REAL
+        db.ref('ligas').on('value', (snapshot) => {
+            const data = snapshot.val();
+            const pantalla = document.getElementById('pantalla-principal');
+            pantalla.innerHTML = ""; // Limpiar para actualizar
+
+            for(let cat in data) {
+                pantalla.innerHTML += `<div class="categoria-label">CATEGORÍA ${cat}</div>`;
+                let grid = `<div class="grid-equipos">`;
+                
+                for(let equipo in data[cat]) {
+                    const info = data[cat][equipo];
+                    grid += `
+                        <div class="card">
+                            <div style="color:var(--gold); font-weight:bold;">${equipo}</div>
+                            <div style="font-size:0.8em; opacity:0.7;">Manager: ${info.manager}</div>
+                            <div class="slot">P1: ${info.p1}</div>
+                            <div class="slot">P2: ${info.p2}</div>
+                            <div class="slot">P3: ${info.p3}</div>
+                            <div class="slot">P4: ${info.p4}</div>
+                        </div>
+                    `;
+                }
+                grid += `</div>`;
+                pantalla.innerHTML += grid;
+            }
+        });
     </script>
 </body>
 </html>
