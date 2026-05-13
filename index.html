@@ -2,22 +2,34 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Mercado Internacional Series</title>
-    <!-- Firebase App y Database -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IGP - Internacional Series Hub</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
-        body { background-color: #121212; color: white; font-family: sans-serif; text-align: center; }
-        .config-status { color: #00ff00; margin-top: 50px; }
+        :root { --f1-red: #e10600; --carbon: #15151e; --card-bg: #1f1f27; --gold: #c69c6d; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--carbon); color: white; margin: 0; padding: 20px; }
+        .header { border-bottom: 3px solid var(--f1-red); padding-bottom: 10px; margin-bottom: 20px; text-align: left; }
+        .grid-equipos { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: var(--card-bg); border-radius: 8px; border-top: 4px solid var(--f1-red); padding: 15px; }
+        .team-name { color: var(--gold); font-weight: bold; font-size: 1.2em; margin-bottom: 5px; }
+        .manager { font-size: 0.9em; opacity: 0.7; margin-bottom: 15px; }
+        .slot { background: #2a2a35; padding: 8px; margin: 5px 0; border-radius: 4px; display: flex; justify-content: space-between; font-size: 0.9em; }
+        .btn-edit { background: var(--f1-red); color: white; border: none; padding: 10px; width: 100%; border-radius: 4px; cursor: pointer; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h1>INTERCONTINENTAL SERIES - IGP MANAGER</h1>
-    <p>Conectando con el mercado en vivo...</p>
-    <div id="status" class="config-status">Cargando conexión...</div>
+
+    <div class="header">
+        <h1>INTERCONTINENTAL SERIES</h1>
+        <p>Categoría: FÓRMULA 1 (8 Equipos)</p>
+    </div>
+
+    <div class="grid-equipos" id="contenedor-equipos">
+        <!-- Los 8 equipos se generarán aquí automáticamente -->
+    </div>
 
     <script>
-        // TU CONFIGURACIÓN DE FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyBIo1hhtqKMSsBRN2b0b4k3taWugegbo8A",
             authDomain: "igp-mercado-live.firebaseapp.com",
@@ -25,22 +37,29 @@
             projectId: "igp-mercado-live",
             storageBucket: "igp-mercado-live.firebasestorage.app",
             messagingSenderId: "926047332363",
-            appId: "1:926047332363:web:d5f4e257126cea7af6ff0e",
-            measurementId: "G-2RQ0XVXVXR"
+            appId: "1:926047332363:web:d5f4e257126cea7af6ff0e"
         };
 
-        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        const db = firebase.database();
 
-        // Prueba de conexión
-        database.ref(".info/connected").on("value", (snap) => {
-            if (snap.val() === true) {
-                document.getElementById("status").innerText = "✓ CONECTADO A FIREBASE EXITOSAMENTE";
-            } else {
-                document.getElementById("status").innerText = "× ERROR DE CONEXIÓN";
-            }
-        });
+        // Generar 8 equipos vacíos por defecto si no existen
+        const contenedor = document.getElementById('contenedor-equipos');
+        
+        for(let i = 1; i <= 8; i++) {
+            let card = `
+                <div class="card">
+                    <div class="team-name">Equipo #${i}</div>
+                    <div class="manager">Mánager: Sin asignar</div>
+                    <div class="slot"><span>P1:</span> <span id="e${i}-p1">Vacío</span></div>
+                    <div class="slot"><span>P2:</span> <span id="e${i}-p2">Vacío</span></div>
+                    <div class="slot"><span>P3:</span> <span id="e${i}-p3">Vacío</span></div>
+                    <div class="slot"><span>P4:</span> <span id="e${i}-p4">Vacío</span></div>
+                    <button class="btn-edit" onclick="alert('Pronto: Panel de edición para Equipo ${i}')">EDITAR EQUIPO</button>
+                </div>
+            `;
+            contenedor.innerHTML += card;
+        }
     </script>
 </body>
 </html>
