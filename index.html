@@ -26,13 +26,13 @@
         /* Base de Datos de Managers */
         .db-form { background: #1a1a24; padding: 20px; border-radius: 5px; margin: 20px; border: 1px solid var(--border); }
         .manager-list { padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
-        .m-item { background: #22222a; padding: 10px; border-radius: 4px; display: flex; justify-content: space-between; border-left: 3px solid var(--f1-red); }
+        .m-item { background: #22222a; padding: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--f1-red); }
 
         /* Tarjetas de Equipo */
         .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; padding: 15px; }
-        .team-card { background: var(--card); border-radius: 6px; border: 1px solid var(--border); }
-        .team-head { background: linear-gradient(90deg, #1c1c24 0%, #14141a 100%); padding: 10px; font-weight: bold; }
-        .slot { background: #22222a; margin: 5px; padding: 10px; border-radius: 4px; }
+        .team-card { background: var(--card); border-radius: 6px; border: 1px solid var(--border); position: relative; }
+        .team-head { background: linear-gradient(90deg, #1c1c24 0%, #14141a 100%); padding: 12px; font-weight: bold; display: flex; justify-content: space-between; align-items: flex-start; }
+        .slot { background: #22222a; margin: 5px; padding: 8px; border-radius: 4px; }
         
         /* Mercado */
         .feed-item { border-left: 4px solid #00ff88; background: #1a1a22; margin: 8px; padding: 12px; font-size: 0.8em; border-radius: 4px; }
@@ -43,43 +43,52 @@
         .admin-active .admin-only { display: block; }
         input, select { background: #000; border: 1px solid #444; color: white; padding: 8px; border-radius: 3px; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
         .btn-red { background: var(--f1-red); border: none; color: white; padding: 10px; cursor: pointer; font-weight: bold; width: 100%; border-radius: 3px; }
+        .btn-del { background: transparent; color: #555; border: 1px solid #333; cursor: pointer; padding: 2px 6px; font-size: 0.8em; }
+        .btn-del:hover { color: var(--f1-red); border-color: var(--f1-red); }
     </style>
 </head>
 <body id="app-body">
 
 <div class="top-nav">
     <div style="font-weight: 800;">IGP <span style="color:var(--f1-red)">MANAGER</span> | INTERCONTINENTAL</div>
-    <div>
+    <div style="display: flex; gap: 5px;">
         <input type="password" id="pass" placeholder="Admin Pass" style="width: 120px; margin:0;">
-        <button onclick="checkAdmin()" style="background:var(--f1-red); color:white; border:none; padding:5px 15px; cursor:pointer;">ACCESO</button>
+        <button onclick="checkAdmin()" style="background:var(--f1-red); color:white; border:none; padding:5px 15px; cursor:pointer; font-weight:bold;">ACCESO</button>
     </div>
 </div>
 
 <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('mercado')">Mercado Live</button>
-    <button class="tab-btn" onclick="switchTab('db')">Managers Intercontinental</button>
+    <button class="tab-btn active" onclick="switchTab('mercado')">Mercado & Equipos</button>
+    <button class="tab-btn" onclick="switchTab('db')">Magers Intercontinental</button>
 </div>
 
 <!-- VISTA 1: MERCADO Y EQUIPOS -->
 <div id="view-mercado" class="view active">
     <div class="main-container">
         <div class="col">
-            <div class="col-header">Mercado en Vivo</div>
+            <div class="col-header">Mercado Live</div>
             <div id="feed-list" style="overflow-y:auto;"></div>
         </div>
         <div class="col">
             <div class="col-header">Gestión de Equipos</div>
-            <div class="admin-only" style="padding:15px; background:#1a1a24;">
-                <input type="text" id="new-team" placeholder="Nombre Equipo">
-                <input type="text" id="new-ceo" placeholder="CEO">
-                <select id="new-cat"><option>F1</option><option>F2</option><option>F3</option><option>K6</option></select>
-                <button class="btn-red" onclick="crearEquipo()">REGISTRAR ESCUDERÍA</button>
+            <div class="admin-only" style="padding:15px; background:#1a1a24; border-bottom: 1px solid var(--border);">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                    <input type="text" id="new-team" placeholder="Nombre Equipo">
+                    <input type="text" id="new-ceo" placeholder="CEO">
+                </div>
+                <select id="new-cat">
+                    <option value="F1">F1</option><option value="F2">F2</option><option value="F3">F3</option>
+                    <option value="F4">F4</option><option value="F5">F5</option><option value="K6">K6</option>
+                </select>
+                <button class="btn-red" onclick="crearEquipo()">+ REGISTRAR ESCUDERÍA</button>
             </div>
             <div id="team-grid" class="card-grid"></div>
         </div>
         <div class="col">
-            <div class="col-header">Noticia Oficial</div>
-            <div id="news-box" style="padding:20px; text-align:center; color:#555;">Selecciona un movimiento del mercado...</div>
+            <div class="col-header">Panel de Noticias</div>
+            <div id="news-box" style="padding:20px; text-align:center; color:#444; font-size: 0.8em;">
+                EL GENERADOR DE NOTICIAS ESTÁ LISTO
+            </div>
         </div>
     </div>
 </div>
@@ -87,9 +96,9 @@
 <!-- VISTA 2: BASE DE DATOS DE MANAGERS -->
 <div id="view-db" class="view">
     <div class="db-form admin-only">
-        <h3>Registrar Nuevo Manager</h3>
-        <input type="text" id="db-name" placeholder="Nombre del Piloto / Manager">
-        <button class="btn-red" onclick="registrarEnDB()">GUARDAR EN BASE DE DATOS</button>
+        <h3 style="margin-top:0;">Registro de Manager Oficial</h3>
+        <input type="text" id="db-name" placeholder="Escribe el nombre del Manager">
+        <button class="btn-red" onclick="registrarEnDB()">AÑADIR A LA LIGA</button>
     </div>
     <div id="db-list" class="manager-list"></div>
 </div>
@@ -113,7 +122,7 @@
         if(document.getElementById('pass').value === "IGP2026") {
             isAdmin = true;
             document.getElementById('app-body').classList.add('admin-active');
-            alert("Acceso Administrador");
+            alert("Acceso Administrador: Funciones de eliminación habilitadas");
         }
     }
 
@@ -124,7 +133,7 @@
         event.target.classList.add('active');
     }
 
-    // Lógica Base de Datos
+    // GESTIÓN DE BASE DE DATOS (TAB 2)
     function registrarEnDB() {
         const name = document.getElementById('db-name').value;
         if(name) db.ref('managers_db').push(name);
@@ -137,30 +146,38 @@
         managersDB = ["Libre"];
         snap.forEach(c => {
             managersDB.push(c.val());
-            list.innerHTML += `<div class="m-item"><span>${c.val()}</span> <button class="admin-only" onclick="db.ref('managers_db/${c.key}').remove()">X</button></div>`;
+            list.innerHTML += `
+                <div class="m-item">
+                    <span>${c.val()}</span> 
+                    <button class="admin-only btn-del" onclick="db.ref('managers_db/${c.key}').remove()">ELIMINAR</button>
+                </div>`;
         });
         renderTeams();
     });
 
-    // Lógica Equipos y Mercado
+    // GESTIÓN DE EQUIPOS (TAB 1)
     function crearEquipo() {
         const t = document.getElementById('new-team').value;
         const c = document.getElementById('new-ceo').value;
         const cat = document.getElementById('new-cat').value;
-        db.ref(`ligas/${cat}/${t}`).set({ ceo: c, m1: "Libre", m2: "Libre", m3: "Libre", m4: "Libre" });
+        if(t && c) db.ref(`ligas/${cat}/${t}`).set({ ceo: c, m1: "Libre", m2: "Libre", m3: "Libre", m4: "Libre" });
+        document.getElementById('new-team').value = ""; document.getElementById('new-ceo').value = "";
+    }
+
+    function borrarEquipo(cat, team) {
+        if(confirm(`¿Deseas eliminar permanentemente a ${team} de ${cat}?`)) {
+            db.ref(`ligas/${cat}/${team}`).remove();
+        }
     }
 
     function asignar(cat, team, slot, nuevoNombre, antiguoNombre) {
         if(!isAdmin || nuevoNombre === antiguoNombre) return;
-        
         db.ref(`ligas/${cat}/${team}/${slot}`).set(nuevoNombre);
         
-        // El mensaje de mercado detecta el origen
         let msg = `<b>${nuevoNombre}</b> ficha por ${team} (${cat})`;
         if(antiguoNombre !== "Libre") {
             msg = `<b>${nuevoNombre}</b> pasa de ${antiguoNombre} a ${team} (${cat})`;
         }
-        
         db.ref('feed').push({ msg: msg, time: Date.now() });
     }
 
@@ -172,16 +189,22 @@
             for(let c in data) {
                 for(let t in data[c]) {
                     const e = data[c][t];
-                    let card = `<div class="team-card"><div class="team-head">${t} <br><small>CEO: ${e.ceo}</small></div>`;
+                    let card = `
+                        <div class="team-card">
+                            <div class="team-head">
+                                <div>${t}<br><small style="color:#888;">${c} | CEO: ${e.ceo}</small></div>
+                                <button class="admin-only btn-del" onclick="borrarEquipo('${c}','${t}')">ELIMINAR</button>
+                            </div>`;
                     [1,2,3,4].forEach(n => {
                         const actual = e['m'+n];
-                        card += `<div class="slot">
-                            <small style="color:var(--f1-red)">M${n}</small><br>
-                            <span class="view-only">${actual}</span>
-                            <select class="admin-only" onchange="asignar('${c}','${t}','m${n}', this.value, '${actual}')">
-                                ${managersDB.map(m => `<option value="${m}" ${m === actual ? 'selected' : ''}>${m}</option>`).join('')}
-                            </select>
-                        </div>`;
+                        card += `
+                            <div class="slot">
+                                <small style="color:var(--f1-red); font-weight:bold;">MANAGER ${n}</small><br>
+                                <span class="view-only" style="font-size:0.9em;">${actual}</span>
+                                <select class="admin-only" onchange="asignar('${c}','${t}','m${n}', this.value, '${actual}')">
+                                    ${managersDB.map(m => `<option value="${m}" ${m === actual ? 'selected' : ''}>${m}</option>`).join('')}
+                                </select>
+                            </div>`;
                     });
                     grid.innerHTML += card + `</div>`;
                 }
@@ -194,6 +217,8 @@
         fl.innerHTML = "";
         snap.forEach(c => { fl.innerHTML = `<div class="feed-item">${c.val().msg}</div>` + fl.innerHTML; });
     });
+
+    renderTeams();
 </script>
 </body>
 </html>
