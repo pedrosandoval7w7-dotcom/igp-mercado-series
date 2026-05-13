@@ -3,123 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Internacional Series Hub</title>
+    <title>Transfer Hub - Internacional Series</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
-        :root { --f1-red: #e10600; --carbon: #101010; --card-bg: #1c1c24; --gold: #d4af37; --white: #ffffff; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--carbon); color: var(--white); margin: 0; padding: 20px; }
+        :root { --f1-red: #e10600; --dark: #0b0b0f; --card-bg: #15151e; --gold: #c69c6d; --border: #2b2b35; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: white; margin: 0; padding: 20px; }
         
-        /* Panel de Administración */
-        .admin-panel { background: #22222b; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #333; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .admin-panel h3 { margin-top: 0; color: var(--f1-red); text-transform: uppercase; letter-spacing: 1px; }
-        .admin-panel input, .admin-panel select { padding: 12px; margin: 5px; border-radius: 4px; border: 1px solid #444; background: #2a2a35; color: white; outline: none; }
-        .btn-add { background: var(--f1-red); color: white; border: none; padding: 12px 25px; border-radius: 4px; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; }
-        .btn-add:hover { background: #b00500; }
+        .header-main { border-bottom: 4px solid var(--f1-red); margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; }
+        
+        /* Panel de Registro Superior */
+        .reg-bar { background: var(--card-bg); padding: 15px; border-radius: 8px; display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; border: 1px solid var(--border); }
+        input, select { background: #000; border: 1px solid var(--border); color: white; padding: 10px; border-radius: 4px; }
+        .btn-add { background: var(--f1-red); border: none; color: white; padding: 10px 20px; font-weight: bold; cursor: pointer; border-radius: 4px; }
 
-        /* Categorías y Grid */
-        .categoria-section { margin-top: 40px; }
-        .categoria-label { background: var(--f1-red); color: white; display: inline-block; padding: 5px 20px; font-weight: bold; border-radius: 0 15px 15px 0; margin-bottom: 20px; box-shadow: 3px 3px 10px rgba(0,0,0,0.3); }
-        .grid-equipos { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        /* Grid de Categorías */
+        .cat-title { background: var(--f1-red); display: inline-block; padding: 5px 20px; font-weight: bold; border-radius: 4px; margin: 20px 0; }
+        .grid-teams { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+
+        /* Tarjeta Estilo Profesional */
+        .card { background: var(--card-bg); border-radius: 12px; padding: 20px; border: 1px solid var(--border); box-shadow: 0 10px 20px rgba(0,0,0,0.5); position: relative; }
+        .card-header { border-bottom: 1px solid var(--border); margin-bottom: 15px; padding-bottom: 10px; display: flex; justify-content: space-between; }
+        .team-name { color: var(--gold); font-size: 1.2em; font-weight: bold; text-transform: uppercase; }
+        .ceo-name { color: #aaa; font-size: 0.9em; }
         
-        /* Estilo de la Tarjeta */
-        .card { background: var(--card-bg); border-radius: 10px; padding: 18px; border-left: 5px solid var(--gold); position: relative; overflow: hidden; }
-        .card::before { content: ""; position: absolute; top: 0; right: 0; width: 50px; height: 50px; background: rgba(212, 175, 55, 0.05); border-radius: 0 0 0 100%; }
-        .team-title { color: var(--white); font-weight: 800; font-size: 1.1em; text-transform: uppercase; margin-bottom: 2px; }
-        .ceo-label { color: var(--gold); font-size: 0.85em; font-weight: bold; margin-bottom: 15px; display: block; }
+        /* Slots de los 4 Managers */
+        .manager-slot { background: #1f1f2a; margin: 8px 0; padding: 12px; border-radius: 6px; border-left: 4px solid #444; transition: 0.3s; }
+        .manager-slot:hover { border-left-color: var(--f1-red); background: #252535; }
+        .slot-header { font-size: 0.7em; color: var(--f1-red); font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
+        .manager-input { width: 100%; background: transparent; border: none; color: white; font-size: 1em; outline: none; }
         
-        /* Slots de Pilotos */
-        .slot { background: #262630; padding: 10px; margin: 6px 0; border-radius: 5px; font-size: 0.85em; display: flex; justify-content: space-between; border: 1px solid #333; }
-        .slot span:first-child { color: #888; font-weight: bold; }
+        .btn-delete { background: none; border: 1px solid #444; color: #666; cursor: pointer; font-size: 0.8em; border-radius: 4px; }
+        .btn-delete:hover { color: white; border-color: var(--f1-red); }
     </style>
 </head>
 <body>
 
-    <h1 style="text-align: center; letter-spacing: 2px;">INTERCONTINENTAL SERIES HUB</h1>
+<div class="header-main">
+    <h1>INTERCONTINENTAL SERIES HUB</h1>
+</div>
 
-    <div class="admin-panel">
-        <h3>Registro de Equipos</h3>
-        <select id="reg-categoria">
-            <option value="F1">FÓRMULA 1</option>
-            <option value="F2">FÓRMULA 2</option>
-            <option value="F3">FÓRMULA 3</option>
-            <option value="F4">FÓRMULA 4</option>
-            <option value="F5">FÓRMULA 5</option>
-            <option value="K6">K6 JUNIOR</option>
-        </select>
-        <input type="text" id="reg-equipo" placeholder="Nombre de la Escudería">
-        <input type="text" id="reg-manager" placeholder="Nombre del CEO">
-        <button class="btn-add" onclick="guardarEquipo()">Registrar Escudería</button>
-    </div>
+<div class="reg-bar">
+    <select id="cat">
+        <option value="F1">F1</option><option value="F2">F2</option><option value="F3">F3</option>
+        <option value="F4">F4</option><option value="F5">F5</option><option value="K6">K6</option>
+    </select>
+    <input type="text" id="team" placeholder="Nombre Escudería">
+    <input type="text" id="ceo" placeholder="Nombre CEO">
+    <button class="btn-add" onclick="crearEquipo()">+ CREAR ESCUDERÍA</button>
+</div>
 
-    <div id="pantalla-principal">
-        <!-- Carga dinámica -->
-    </div>
+<div id="content"></div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBIo1hhtqKMSsBRN2b0b4k3taWugegbo8A",
-            authDomain: "igp-mercado-live.firebaseapp.com",
-            databaseURL: "https://igp-mercado-live-default-rtdb.firebaseio.com",
-            projectId: "igp-mercado-live",
-            storageBucket: "igp-mercado-live.firebasestorage.app",
-            messagingSenderId: "926047332363",
-            appId: "1:926047332363:web:d5f4e257126cea7af6ff0e"
-        };
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBIo1hhtqKMSsBRN2b0b4k3taWugegbo8A",
+        authDomain: "igp-mercado-live.firebaseapp.com",
+        databaseURL: "https://igp-mercado-live-default-rtdb.firebaseio.com",
+        projectId: "igp-mercado-live",
+        storageBucket: "igp-mercado-live.firebasestorage.app",
+        messagingSenderId: "926047332363",
+        appId: "1:926047332363:web:d5f4e257126cea7af6ff0e"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+    function crearEquipo() {
+        const c = document.getElementById('cat').value;
+        const t = document.getElementById('team').value;
+        const ceo = document.getElementById('ceo').value;
+        if(!t || !ceo) return alert("Faltan datos");
 
-        function guardarEquipo() {
-            const cat = document.getElementById('reg-categoria').value;
-            const equipo = document.getElementById('reg-equipo').value;
-            const manager = document.getElementById('reg-manager').value;
-
-            if(equipo === "" || manager === "") return alert("Por favor, completa los datos.");
-
-            db.ref('ligas/' + cat + '/' + equipo).set({
-                ceo: manager,
-                p1: "Libre", p2: "Libre", p3: "Libre", p4: "Libre"
-            });
-            
-            document.getElementById('reg-equipo').value = "";
-            document.getElementById('reg-manager').value = "";
-        }
-
-        db.ref('ligas').on('value', (snapshot) => {
-            const data = snapshot.val();
-            const pantalla = document.getElementById('pantalla-principal');
-            pantalla.innerHTML = "";
-
-            // Orden específico de categorías
-            const orden = ["F1", "F2", "F3", "F4", "F5", "K6"];
-
-            orden.forEach(cat => {
-                if(data && data[cat]) {
-                    let seccion = `
-                        <div class="categoria-section">
-                            <div class="categoria-label">${cat}</div>
-                            <div class="grid-equipos">
-                    `;
-                    
-                    for(let equipo in data[cat]) {
-                        const info = data[cat][equipo];
-                        seccion += `
-                            <div class="card">
-                                <div class="team-title">${equipo}</div>
-                                <span class="ceo-label">CEO: ${info.ceo}</span>
-                                <div class="slot"><span>P1</span> <span>${info.p1}</span></div>
-                                <div class="slot"><span>P2</span> <span>${info.p2}</span></div>
-                                <div class="slot"><span>P3</span> <span>${info.p3}</span></div>
-                                <div class="slot"><span>P4</span> <span>${info.p4}</span></div>
-                            </div>
-                        `;
-                    }
-                    seccion += `</div></div>`;
-                    pantalla.innerHTML += seccion;
-                }
-            });
+        db.ref(`ligas/${c}/${t}`).set({
+            ceo: ceo,
+            m1: "Manager 1", m2: "Manager 2", m3: "Manager 3", m4: "Manager 4"
         });
-    </script>
+    }
+
+    function actualizarManager(cat, equipo, slot, nombre) {
+        db.ref(`ligas/${cat}/${equipo}/${slot}`).set(nombre);
+    }
+
+    function borrarEquipo(cat, equipo) {
+        if(confirm(`¿Borrar ${equipo}?`)) {
+            db.ref(`ligas/${cat}/${equipo}`).remove();
+        }
+    }
+
+    db.ref('ligas').on('value', (snap) => {
+        const data = snap.val();
+        const main = document.getElementById('content');
+        main.innerHTML = "";
+        const categorias = ["F1", "F2", "F3", "F4", "F5", "K6"];
+
+        categorias.forEach(c => {
+            if(data && data[c]) {
+                let html = `<div class="cat-title">${c}</div><div class="grid-teams">`;
+                for(let t in data[c]) {
+                    const e = data[c][t];
+                    html += `
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="team-name">${t}</div>
+                                <div class="ceo-name">CEO: ${e.ceo}</div>
+                            </div>
+                            <button class="btn-delete" onclick="borrarEquipo('${c}','${t}')">Eliminar</button>
+                        </div>
+                        ${[1,2,3,4].map(n => `
+                            <div class="manager-slot">
+                                <div class="slot-header">Manager ${n}</div>
+                                <input class="manager-input" value="${e['m'+n]}" 
+                                       onchange="actualizarManager('${c}','${t}','m${n}', this.value)">
+                            </div>
+                        `).join('')}
+                    </div>`;
+                }
+                main.innerHTML += html + `</div>`;
+            }
+        });
+    });
+</script>
 </body>
 </html>
