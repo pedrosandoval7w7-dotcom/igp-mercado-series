@@ -3,57 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transfer Hub - Internacional Series</title>
+    <title>IGP - Transfer Hub Pro</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
-        :root { --f1-red: #e10600; --dark: #0b0b0f; --card-bg: #15151e; --gold: #c69c6d; --border: #2b2b35; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: white; margin: 0; padding: 20px; }
+        :root { --f1-red: #e10600; --bg: #0b0b0f; --panel: #15151e; --gold: #c69c6d; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; display: flex; flex-direction: column; height: 100vh; }
         
-        .header-main { border-bottom: 4px solid var(--f1-red); margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; }
+        /* Layout de 3 Columnas */
+        .main-container { display: grid; grid-template-columns: 300px 1fr 350px; gap: 15px; padding: 15px; flex-grow: 1; overflow: hidden; }
+        .column { background: var(--panel); border-radius: 8px; border: 1px solid #2b2b35; display: flex; flex-direction: column; }
+        .col-header { background: #1f1f2a; padding: 10px; font-weight: bold; border-bottom: 2px solid var(--f1-red); font-size: 0.9em; }
         
-        /* Panel de Registro Superior */
-        .reg-bar { background: var(--card-bg); padding: 15px; border-radius: 8px; display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; border: 1px solid var(--border); }
-        input, select { background: #000; border: 1px solid var(--border); color: white; padding: 10px; border-radius: 4px; }
-        .btn-add { background: var(--f1-red); border: none; color: white; padding: 10px 20px; font-weight: bold; cursor: pointer; border-radius: 4px; }
+        /* Mercado en Vivo */
+        #feed { padding: 10px; overflow-y: auto; font-size: 0.85em; }
+        .feed-item { border-left: 3px solid #28a745; background: #1a1a24; padding: 8px; margin-bottom: 8px; border-radius: 0 4px 4px 0; }
 
-        /* Grid de Categorías */
-        .cat-title { background: var(--f1-red); display: inline-block; padding: 5px 20px; font-weight: bold; border-radius: 4px; margin: 20px 0; }
-        .grid-teams { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        /* Gestión de Equipos */
+        .scroll-area { overflow-y: auto; padding: 15px; }
+        .grid-teams { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .card { background: #1c1c27; border-radius: 8px; padding: 15px; border: 1px solid #333; }
+        .team-title { color: var(--gold); font-weight: bold; text-transform: uppercase; margin-bottom: 10px; }
+        .slot { background: #262632; margin: 5px 0; padding: 8px; border-radius: 4px; font-size: 0.85em; display: flex; justify-content: space-between; }
+        .slot input { background: transparent; border: none; color: white; width: 70%; text-align: right; outline: none; }
 
-        /* Tarjeta Estilo Profesional */
-        .card { background: var(--card-bg); border-radius: 12px; padding: 20px; border: 1px solid var(--border); box-shadow: 0 10px 20px rgba(0,0,0,0.5); position: relative; }
-        .card-header { border-bottom: 1px solid var(--border); margin-bottom: 15px; padding-bottom: 10px; display: flex; justify-content: space-between; }
-        .team-name { color: var(--gold); font-size: 1.2em; font-weight: bold; text-transform: uppercase; }
-        .ceo-name { color: #aaa; font-size: 0.9em; }
-        
-        /* Slots de los 4 Managers */
-        .manager-slot { background: #1f1f2a; margin: 8px 0; padding: 12px; border-radius: 6px; border-left: 4px solid #444; transition: 0.3s; }
-        .manager-slot:hover { border-left-color: var(--f1-red); background: #252535; }
-        .slot-header { font-size: 0.7em; color: var(--f1-red); font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
-        .manager-input { width: 100%; background: transparent; border: none; color: white; font-size: 1em; outline: none; }
-        
-        .btn-delete { background: none; border: 1px solid #444; color: #666; cursor: pointer; font-size: 0.8em; border-radius: 4px; }
-        .btn-delete:hover { color: white; border-color: var(--f1-red); }
+        /* Estilos de Admin */
+        .admin-bar { background: #e10600; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .locked { opacity: 0.6; pointer-events: none; }
+        .btn-action { background: black; color: white; border: none; padding: 5px 15px; cursor: pointer; border-radius: 4px; font-size: 0.8em; }
     </style>
 </head>
 <body>
 
-<div class="header-main">
-    <h1>INTERCONTINENTAL SERIES HUB</h1>
+<div class="admin-bar">
+    <span>INTERCONTINENTAL SERIES - HUB DE FICHAJES</span>
+    <div>
+        <input type="password" id="admin-pass" placeholder="Clave Admin" style="padding: 5px;">
+        <button class="btn-action" onclick="toggleAdmin()">MODO ADMIN</button>
+    </div>
 </div>
 
-<div class="reg-bar">
-    <select id="cat">
-        <option value="F1">F1</option><option value="F2">F2</option><option value="F3">F3</option>
-        <option value="F4">F4</option><option value="F5">F5</option><option value="K6">K6</option>
-    </select>
-    <input type="text" id="team" placeholder="Nombre Escudería">
-    <input type="text" id="ceo" placeholder="Nombre CEO">
-    <button class="btn-add" onclick="crearEquipo()">+ CREAR ESCUDERÍA</button>
-</div>
+<div class="main-container">
+    <!-- COLUMNA 1: MERCADO EN VIVO -->
+    <div class="column">
+        <div class="col-header">MERCADO EN VIVO</div>
+        <div id="feed"></div>
+    </div>
 
-<div id="content"></div>
+    <!-- COLUMNA 2: GESTIÓN (CENTRO) -->
+    <div class="column">
+        <div class="col-header">GESTIÓN DE EQUIPOS POR CATEGORÍA</div>
+        <div class="scroll-area">
+            <div id="admin-controls" style="margin-bottom: 20px; display: none;">
+                <select id="new-cat"><option value="F1">F1</option><option value="F2">F2</option><option value="K6">K6</option></select>
+                <input type="text" id="new-team" placeholder="Nueva Escudería">
+                <input type="text" id="new-ceo" placeholder="Nombre CEO">
+                <button onclick="crearEquipo()">+ CREAR</button>
+            </div>
+            <div id="content" class="grid-teams locked"></div>
+        </div>
+    </div>
+
+    <!-- COLUMNA 3: NOTICIAS (DERECHA) -->
+    <div class="column">
+        <div class="col-header">GENERADOR DE NOTICIAS</div>
+        <div id="news-preview" style="padding: 20px; text-align: center;">
+            <p style="color: #666;">Selecciona un cambio para generar imagen...</p>
+        </div>
+    </div>
+</div>
 
 <script>
     const firebaseConfig = {
@@ -68,59 +86,61 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    function crearEquipo() {
-        const c = document.getElementById('cat').value;
-        const t = document.getElementById('team').value;
-        const ceo = document.getElementById('ceo').value;
-        if(!t || !ceo) return alert("Faltan datos");
-
-        db.ref(`ligas/${c}/${t}`).set({
-            ceo: ceo,
-            m1: "Manager 1", m2: "Manager 2", m3: "Manager 3", m4: "Manager 4"
-        });
-    }
-
-    function actualizarManager(cat, equipo, slot, nombre) {
-        db.ref(`ligas/${cat}/${equipo}/${slot}`).set(nombre);
-    }
-
-    function borrarEquipo(cat, equipo) {
-        if(confirm(`¿Borrar ${equipo}?`)) {
-            db.ref(`ligas/${cat}/${equipo}`).remove();
+    let isAdmin = false;
+    function toggleAdmin() {
+        const pass = document.getElementById('admin-pass').value;
+        if(pass === "IGP2026") { // Define tu propia clave aquí
+            isAdmin = true;
+            document.getElementById('content').classList.remove('locked');
+            document.getElementById('admin-controls').style.display = 'block';
+            alert("Acceso Administrador Concedido");
+        } else {
+            alert("Clave Incorrecta");
         }
     }
 
+    function crearEquipo() {
+        const c = document.getElementById('new-cat').value;
+        const t = document.getElementById('new-team').value;
+        const ceo = document.getElementById('new-ceo').value;
+        db.ref(`ligas/${c}/${t}`).set({ ceo: ceo, m1: "Libre", m2: "Libre", m3: "Libre", m4: "Libre" });
+    }
+
+    function actualizar(cat, equipo, slot, nombre, anterior) {
+        if(!isAdmin) return;
+        db.ref(`ligas/${cat}/${equipo}/${slot}`).set(nombre);
+        // Registrar en el Feed
+        const log = `${nombre} se une a ${equipo} (${cat})`;
+        db.ref('feed').push({ msg: log, time: Date.now() });
+    }
+
+    // Carga de Datos
     db.ref('ligas').on('value', (snap) => {
         const data = snap.val();
-        const main = document.getElementById('content');
-        main.innerHTML = "";
-        const categorias = ["F1", "F2", "F3", "F4", "F5", "K6"];
-
-        categorias.forEach(c => {
-            if(data && data[c]) {
-                let html = `<div class="cat-title">${c}</div><div class="grid-teams">`;
-                for(let t in data[c]) {
-                    const e = data[c][t];
-                    html += `
+        const cont = document.getElementById('content');
+        cont.innerHTML = "";
+        for(let c in data) {
+            for(let t in data[c]) {
+                const e = data[c][t];
+                cont.innerHTML += `
                     <div class="card">
-                        <div class="card-header">
-                            <div>
-                                <div class="team-name">${t}</div>
-                                <div class="ceo-name">CEO: ${e.ceo}</div>
-                            </div>
-                            <button class="btn-delete" onclick="borrarEquipo('${c}','${t}')">Eliminar</button>
-                        </div>
+                        <div class="team-title">${t}</div>
+                        <div style="font-size: 0.7em; margin-bottom:10px;">CEO: ${e.ceo}</div>
                         ${[1,2,3,4].map(n => `
-                            <div class="manager-slot">
-                                <div class="slot-header">Manager ${n}</div>
-                                <input class="manager-input" value="${e['m'+n]}" 
-                                       onchange="actualizarManager('${c}','${t}','m${n}', this.value)">
-                            </div>
+                            <div class="slot"><span>M${n}</span> 
+                            <input value="${e['m'+n]}" onchange="actualizar('${c}','${t}','m${n}', this.value, '${e['m'+n]}')"></div>
                         `).join('')}
                     </div>`;
-                }
-                main.innerHTML += html + `</div>`;
             }
+        }
+    });
+
+    // Carga del Feed
+    db.ref('feed').limitToLast(10).on('value', (snap) => {
+        const feed = document.getElementById('feed');
+        feed.innerHTML = "";
+        snap.forEach(child => {
+            feed.innerHTML = `<div class="feed-item">${child.val().msg}</div>` + feed.innerHTML;
         });
     });
 </script>
