@@ -3,74 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IGP Manager - Intercontinental Series Hub</title>
+    <title>IGP - Intercontinental Series Hub</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
-        :root { --f1-red: #e10600; --bg: #0c0c0e; --card: #18181e; --border: #2d2d37; --text: #e1e1e6; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        :root { --f1-red: #ff1801; --bg: #0c0c0e; --card: #18181e; --border: #2d2d37; --text: #e1e1e6; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        /* Navbar Superior Estilo 66514.jpg */
+        /* Navbar y Tabs */
         .top-nav { background: #111115; border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .logo-area { font-weight: 800; letter-spacing: 1px; color: white; display: flex; align-items: center; gap: 10px; }
-        .logo-area span { color: var(--f1-red); }
+        .tabs { display: flex; background: #1a1a24; padding: 5px 20px; gap: 10px; border-bottom: 2px solid var(--f1-red); }
+        .tab-btn { background: none; border: none; color: #888; padding: 10px 20px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 0.8em; }
+        .tab-btn.active { color: white; border-bottom: 2px solid white; }
 
-        .main-container { display: grid; grid-template-columns: 320px 1fr 380px; gap: 10px; padding: 10px; flex-grow: 1; overflow: hidden; background: #08080a; }
-        .col { background: #111115; border-radius: 4px; border: 1px solid var(--border); display: flex; flex-direction: column; }
-        .col-header { background: #1c1c24; padding: 12px; font-size: 0.85em; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid var(--border); color: #fff; }
+        /* Contenedores */
+        .main-container { display: grid; grid-template-columns: 320px 1fr 380px; gap: 10px; padding: 10px; flex-grow: 1; overflow: hidden; }
+        .view { display: none; height: 100%; overflow-y: auto; }
+        .view.active { display: block; }
+        .col { background: #111115; border-radius: 4px; border: 1px solid var(--border); display: flex; flex-direction: column; height: 100%; }
+        .col-header { background: #1c1c24; padding: 12px; font-size: 0.85em; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid var(--border); }
 
-        /* Estilo de Tarjetas de Escudería */
-        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; padding: 15px; overflow-y: auto; }
-        .team-card { background: var(--card); border-radius: 6px; border: 1px solid var(--border); overflow: hidden; }
-        .team-head { background: linear-gradient(90deg, #1c1c24 0%, #14141a 100%); padding: 10px 15px; border-bottom: 1px solid var(--border); }
-        .team-name { font-weight: bold; color: #fff; font-size: 0.95em; }
-        .ceo-label { font-size: 0.75em; color: #888; }
+        /* Base de Datos de Managers */
+        .db-form { background: #1a1a24; padding: 20px; border-radius: 5px; margin: 20px; border: 1px solid var(--border); }
+        .manager-list { padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+        .m-item { background: #22222a; padding: 10px; border-radius: 4px; display: flex; justify-content: space-between; border-left: 3px solid var(--f1-red); }
 
-        .slot-list { padding: 8px; }
-        .slot { background: #22222a; margin-bottom: 4px; padding: 8px 12px; border-radius: 3px; font-size: 0.85em; display: flex; justify-content: space-between; align-items: center; border: 1px solid transparent; }
-        .slot:hover { border-color: #3d3d4d; }
-        .slot-name { color: #fff; font-weight: 500; }
-        .slot-id { color: var(--f1-red); font-weight: bold; margin-right: 10px; }
+        /* Tarjetas de Equipo */
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; padding: 15px; }
+        .team-card { background: var(--card); border-radius: 6px; border: 1px solid var(--border); }
+        .team-head { background: linear-gradient(90deg, #1c1c24 0%, #14141a 100%); padding: 10px; font-weight: bold; }
+        .slot { background: #22222a; margin: 5px; padding: 10px; border-radius: 4px; }
+        
+        /* Mercado */
+        .feed-item { border-left: 4px solid #00ff88; background: #1a1a22; margin: 8px; padding: 12px; font-size: 0.8em; border-radius: 4px; }
+        .feed-msg b { color: var(--f1-red); }
 
-        /* Controles Admin Ocultos */
-        .admin-only { display: none; margin-top: 5px; }
+        /* Admin UI */
+        .admin-only { display: none; }
         .admin-active .admin-only { display: block; }
-        .btn-del { background: var(--f1-red); border: none; color: white; padding: 2px 6px; cursor: pointer; border-radius: 2px; font-size: 0.7em; }
-
-        /* Feed de Mercado */
-        .feed-item { border-left: 3px solid #00ff88; background: #1a1a22; margin: 8px; padding: 10px; font-size: 0.8em; border-radius: 0 4px 4px 0; }
+        input, select { background: #000; border: 1px solid #444; color: white; padding: 8px; border-radius: 3px; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
+        .btn-red { background: var(--f1-red); border: none; color: white; padding: 10px; cursor: pointer; font-weight: bold; width: 100%; border-radius: 3px; }
     </style>
 </head>
 <body id="app-body">
 
 <div class="top-nav">
-    <div class="logo-area">IGP <span>MANAGER</span> | INTERCONTINENTAL SERIES</div>
+    <div style="font-weight: 800;">IGP <span style="color:var(--f1-red)">MANAGER</span> | INTERCONTINENTAL</div>
     <div>
-        <input type="password" id="pass" placeholder="Admin Pass" style="background:#000; border:1px solid #444; color:white; padding:5px;">
-        <button onclick="checkAdmin()" style="background:var(--f1-red); border:none; color:white; padding:5px 15px; cursor:pointer; font-weight:bold;">ACCESO</button>
+        <input type="password" id="pass" placeholder="Admin Pass" style="width: 120px; margin:0;">
+        <button onclick="checkAdmin()" style="background:var(--f1-red); color:white; border:none; padding:5px 15px; cursor:pointer;">ACCESO</button>
     </div>
 </div>
 
-<div class="main-container">
-    <div class="col">
-        <div class="col-header">Mercado en Vivo</div>
-        <div id="feed-list" style="overflow-y:auto;"></div>
-    </div>
+<div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('mercado')">Mercado Live</button>
+    <button class="tab-btn" onclick="switchTab('db')">Managers Intercontinental</button>
+</div>
 
-    <div class="col">
-        <div class="col-header" id="cat-label">Gestión de Equipos</div>
-        <div id="team-grid" class="card-grid"></div>
-    </div>
-
-    <div class="col">
-        <div class="col-header">Generador de Noticias de Fichaje</div>
-        <div style="padding:40px; text-align:center; color:#555; font-size:0.9em;">
-            <div style="border: 2px dashed #333; padding: 20px; border-radius: 10px;">
-                <p>MÓDULO DE NOTICIAS</p>
-                <small>Haga clic en un fichaje del mercado para generar la imagen oficial.</small>
+<!-- VISTA 1: MERCADO Y EQUIPOS -->
+<div id="view-mercado" class="view active">
+    <div class="main-container">
+        <div class="col">
+            <div class="col-header">Mercado en Vivo</div>
+            <div id="feed-list" style="overflow-y:auto;"></div>
+        </div>
+        <div class="col">
+            <div class="col-header">Gestión de Equipos</div>
+            <div class="admin-only" style="padding:15px; background:#1a1a24;">
+                <input type="text" id="new-team" placeholder="Nombre Equipo">
+                <input type="text" id="new-ceo" placeholder="CEO">
+                <select id="new-cat"><option>F1</option><option>F2</option><option>F3</option><option>K6</option></select>
+                <button class="btn-red" onclick="crearEquipo()">REGISTRAR ESCUDERÍA</button>
             </div>
+            <div id="team-grid" class="card-grid"></div>
+        </div>
+        <div class="col">
+            <div class="col-header">Noticia Oficial</div>
+            <div id="news-box" style="padding:20px; text-align:center; color:#555;">Selecciona un movimiento del mercado...</div>
         </div>
     </div>
+</div>
+
+<!-- VISTA 2: BASE DE DATOS DE MANAGERS -->
+<div id="view-db" class="view">
+    <div class="db-form admin-only">
+        <h3>Registrar Nuevo Manager</h3>
+        <input type="text" id="db-name" placeholder="Nombre del Piloto / Manager">
+        <button class="btn-red" onclick="registrarEnDB()">GUARDAR EN BASE DE DATOS</button>
+    </div>
+    <div id="db-list" class="manager-list"></div>
 </div>
 
 <script>
@@ -86,74 +107,92 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     let isAdmin = false;
+    let managersDB = ["Libre"];
 
     function checkAdmin() {
         if(document.getElementById('pass').value === "IGP2026") {
             isAdmin = true;
             document.getElementById('app-body').classList.add('admin-active');
-            alert("Modo Administrador: Controles Activados");
-            renderTeams(); // Refrescar para mostrar controles
+            alert("Acceso Administrador");
         }
     }
 
-    let globalData = {};
-    db.ref('ligas').on('value', snap => {
-        globalData = snap.val();
+    function switchTab(tab) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('view-' + tab).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    // Lógica Base de Datos
+    function registrarEnDB() {
+        const name = document.getElementById('db-name').value;
+        if(name) db.ref('managers_db').push(name);
+        document.getElementById('db-name').value = "";
+    }
+
+    db.ref('managers_db').on('value', snap => {
+        const list = document.getElementById('db-list');
+        list.innerHTML = "";
+        managersDB = ["Libre"];
+        snap.forEach(c => {
+            managersDB.push(c.val());
+            list.innerHTML += `<div class="m-item"><span>${c.val()}</span> <button class="admin-only" onclick="db.ref('managers_db/${c.key}').remove()">X</button></div>`;
+        });
         renderTeams();
     });
 
-    function renderTeams() {
-        const grid = document.getElementById('team-grid');
-        grid.innerHTML = "";
-        let listaEquipos = [];
+    // Lógica Equipos y Mercado
+    function crearEquipo() {
+        const t = document.getElementById('new-team').value;
+        const c = document.getElementById('new-ceo').value;
+        const cat = document.getElementById('new-cat').value;
+        db.ref(`ligas/${cat}/${t}`).set({ ceo: c, m1: "Libre", m2: "Libre", m3: "Libre", m4: "Libre" });
+    }
 
-        for(let cat in globalData) {
-            for(let team in globalData[cat]) {
-                listaEquipos.push(`${cat}|${team}`);
-                const info = globalData[cat][team];
-                
-                let card = `
-                    <div class="team-card">
-                        <div class="team-head">
-                            <div style="display:flex; justify-content:space-between;">
-                                <div class="team-name">${team}</div>
-                                <div class="admin-only"><button class="btn-del" onclick="borrar('${cat}','${team}')">ELIMINAR</button></div>
-                            </div>
-                            <div class="ceo-label">CEO: ${info.ceo}</div>
-                        </div>
-                        <div class="slot-list">
-                            ${[1,2,3,4].map(n => `
-                                <div class="slot">
-                                    <div><span class="slot-id">P${n}</span> <span class="slot-name">${info['m'+n]}</span></div>
-                                    <div class="admin-only">
-                                        <select onchange="traspasar('${cat}','${team}','m${n}','${info['m'+n]}', this.value)" style="font-size:0.7em; background:#000; color:#fff;">
-                                            <option>Mover a...</option>
-                                            ${listaEquipos.map(le => `<option value="${le}">${le.split('|')[1]}</option>`).join('')}
-                                        </select>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>`;
-                grid.innerHTML += card;
-            }
+    function asignar(cat, team, slot, nuevoNombre, antiguoNombre) {
+        if(!isAdmin || nuevoNombre === antiguoNombre) return;
+        
+        db.ref(`ligas/${cat}/${team}/${slot}`).set(nuevoNombre);
+        
+        // El mensaje de mercado detecta el origen
+        let msg = `<b>${nuevoNombre}</b> ficha por ${team} (${cat})`;
+        if(antiguoNombre !== "Libre") {
+            msg = `<b>${nuevoNombre}</b> pasa de ${antiguoNombre} a ${team} (${cat})`;
         }
+        
+        db.ref('feed').push({ msg: msg, time: Date.now() });
     }
 
-    function traspasar(cOrig, tOrig, slot, nombre, tDestFull) {
-        if(!tDestFull) return;
-        const [cDest, tDest] = tDestFull.split('|');
-        db.ref(`ligas/${cOrig}/${tOrig}/${slot}`).set("Libre");
-        db.ref(`ligas/${cDest}/${tDest}/m1`).set(nombre); // Por simplicidad a M1 en destino
-        db.ref('feed').push({ msg: `[${cDest}] ${nombre} FICHA POR ${tDest}`, time: Date.now() });
+    function renderTeams() {
+        db.ref('ligas').on('value', snap => {
+            const grid = document.getElementById('team-grid');
+            grid.innerHTML = "";
+            const data = snap.val();
+            for(let c in data) {
+                for(let t in data[c]) {
+                    const e = data[c][t];
+                    let card = `<div class="team-card"><div class="team-head">${t} <br><small>CEO: ${e.ceo}</small></div>`;
+                    [1,2,3,4].forEach(n => {
+                        const actual = e['m'+n];
+                        card += `<div class="slot">
+                            <small style="color:var(--f1-red)">M${n}</small><br>
+                            <span class="view-only">${actual}</span>
+                            <select class="admin-only" onchange="asignar('${c}','${t}','m${n}', this.value, '${actual}')">
+                                ${managersDB.map(m => `<option value="${m}" ${m === actual ? 'selected' : ''}>${m}</option>`).join('')}
+                            </select>
+                        </div>`;
+                    });
+                    grid.innerHTML += card + `</div>`;
+                }
+            }
+        });
     }
 
-    function borrar(c, t) { if(confirm(`¿Borrar ${t}?`)) db.ref(`ligas/${c}/${t}`).remove(); }
-
-    db.ref('feed').limitToLast(10).on('value', snap => {
-        const feed = document.getElementById('feed-list');
-        feed.innerHTML = "";
-        snap.forEach(c => { feed.innerHTML = `<div class="feed-item">${c.val().msg}</div>` + feed.innerHTML; });
+    db.ref('feed').limitToLast(15).on('value', snap => {
+        const fl = document.getElementById('feed-list');
+        fl.innerHTML = "";
+        snap.forEach(c => { fl.innerHTML = `<div class="feed-item">${c.val().msg}</div>` + fl.innerHTML; });
     });
 </script>
 </body>
