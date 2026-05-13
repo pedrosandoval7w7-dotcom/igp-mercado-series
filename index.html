@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mercado Internacional Series</title>
+    <!-- Firebase App y Database -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <style>
+        body { background-color: #121212; color: white; font-family: sans-serif; text-align: center; }
+        .config-status { color: #00ff00; margin-top: 50px; }
+    </style>
+</head>
+<body>
+    <h1>INTERCONTINENTAL SERIES - IGP MANAGER</h1>
+    <p>Conectando con el mercado en vivo...</p>
+    <div id="status" class="config-status">Cargando conexión...</div>
+
+    <script>
+        // TU CONFIGURACIÓN DE FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyBIo1hhtqKMSsBRN2b0b4k3taWugegbo8A",
+            authDomain: "igp-mercado-live.firebaseapp.com",
+            databaseURL: "https://igp-mercado-live-default-rtdb.firebaseio.com",
+            projectId: "igp-mercado-live",
+            storageBucket: "igp-mercado-live.firebasestorage.app",
+            messagingSenderId: "926047332363",
+            appId: "1:926047332363:web:d5f4e257126cea7af6ff0e",
+            measurementId: "G-2RQ0XVXVXR"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Prueba de conexión
+        database.ref(".info/connected").on("value", (snap) => {
+            if (snap.val() === true) {
+                document.getElementById("status").innerText = "✓ CONECTADO A FIREBASE EXITOSAMENTE";
+            } else {
+                document.getElementById("status").innerText = "× ERROR DE CONEXIÓN";
+            }
+        });
+    </script>
+</body>
+</html>
