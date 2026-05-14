@@ -8,7 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;700&family=Racing+Sans+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;700&family=Racing+Sans+One&family=Roboto+Condensed:wght@700&family=Bebas+Neue&family=Montserrat:wght@900&display=swap" rel="stylesheet">
     
     <style>
         :root { --f1-red: #e10600; --bg: #0c0c0e; --card: #18181e; --border: #2d2d37; --text: #e1e1e6; --accent: #00ff88; }
@@ -46,14 +46,13 @@
         .delete-btn { color: #555; cursor: pointer; transition: 0.3s; }
         .delete-btn:hover { color: var(--f1-red); }
 
-        /* --- PLANTILLAS DE PRENSA (20 VARIANTES) --- */
+        /* --- PLANTILLAS DE PRENSA --- */
         #capture-area, #capture-area-prensa { 
             width: 340px; height: 440px; position: relative; 
             padding: 25px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;
             overflow: hidden; border: 1px solid #333; flex-shrink: 0;
         }
 
-        /* Definiciones de Estilos */
         .tpl-carbon { background: #000; background-image: linear-gradient(45deg, #0a0a0a 25%, #111 25%, #111 50%, #0a0a0a 50%, #0a0a0a 75%, #111 75%, #111 100%); background-size: 4px 4px; border-left: 10px solid var(--f1-red) !important; }
         .tpl-neon { background: #000; border: 1px solid var(--accent) !important; box-shadow: inset 0 0 20px rgba(0,255,136,0.2); }
         .tpl-royal { background: #050505; border: 2px solid #d4af37 !important; }
@@ -79,15 +78,15 @@
         .tpl-stealth { background: #111; border: 1px solid #222 !important; filter: grayscale(1); }
 
         .n-badge { font-family: 'Orbitron'; font-weight: 900; font-size: 0.6em; padding: 4px 10px; display: inline-block; margin-bottom: 5px; z-index: 10; position: relative; border-radius: 2px; }
-        .n-main-title { font-family: 'Orbitron'; font-weight: 900; font-size: 1.5em; text-transform: uppercase; color: white; z-index: 10; position: relative; margin: 0; }
-        .n-manager-name { font-family: 'Orbitron'; font-weight: 900; font-size: 2.3em; line-height: 0.95; margin: 20px 0; z-index: 10; position: relative; text-transform: uppercase; }
+        .n-main-title { font-family: 'Orbitron'; font-weight: 900; font-size: 1.5em; text-transform: uppercase; color: white; z-index: 10; position: relative; margin: 0; transition: font-size 0.2s; }
+        .n-manager-name { font-family: 'Orbitron'; font-weight: 900; font-size: 2.3em; line-height: 0.95; margin: 20px 0; z-index: 10; position: relative; text-transform: uppercase; transition: font-size 0.2s; }
         .n-details { font-size: 0.7em; font-weight: bold; color: #888; text-transform: uppercase; z-index: 10; position: relative; }
-        .n-f1-decor { position:absolute; top:40%; left:50%; transform:translate(-50%,-50%); font-size: 12em; font-weight: 900; color: #0f0f0f; z-index: 1; font-family: 'Orbitron'; opacity: 0.8; font-style: italic; }
+        .n-f1-decor { position:absolute; top:40%; left:50%; transform:translate(-50%,-50%); font-size: 12em; font-weight: 900; color: #0f0f0f; z-index: 1; font-family: 'Orbitron'; opacity: 0.8; font-style: italic; pointer-events: none; }
         .n-footer { border-top: 1px solid #222; padding-top: 10px; z-index: 10; position: relative; display: flex; justify-content: space-between; align-items: flex-end; }
 
-        /* --- SECCIÓN NOTICIAS --- */
+        /* --- NOTICIAS --- */
         .news-container { max-width: 800px; margin: 0 auto; padding: 20px; }
-        .news-post { background: var(--card); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 30px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .news-post { background: var(--card); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 30px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; }
         .news-img { width: 100%; max-height: 500px; object-fit: contain; background: #000; display: block; border-bottom: 1px solid var(--border); }
         .news-content { padding: 20px; }
         .news-tag { color: var(--f1-red); font-family: 'Orbitron'; font-weight: 900; font-size: 0.7em; margin-bottom: 10px; }
@@ -98,9 +97,14 @@
         .news-chat { padding: 20px; background: #0a0a0f; }
         .chat-msg { margin-bottom: 10px; font-size: 0.85em; border-left: 2px solid var(--f1-red); padding-left: 10px; }
         .chat-msg b { color: var(--accent); font-size: 0.75em; text-transform: uppercase; display: block; }
+        .btn-delete-post { position: absolute; top: 15px; right: 15px; background: rgba(225, 6, 0, 0.8); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.6em; font-weight: bold; }
         
         .upload-area { border: 2px dashed #333; padding: 20px; text-align: center; cursor: pointer; border-radius: 8px; margin-bottom: 10px; transition: 0.3s; }
         .upload-area:hover { border-color: var(--accent); background: rgba(0,255,136,0.05); }
+
+        /* Controles de Prensa */
+        .press-controls label { display: block; font-size: 0.65em; color: #888; text-transform: uppercase; margin: 8px 0 4px 0; }
+        .press-controls input[type="range"] { margin-bottom: 15px; accent-color: var(--f1-red); }
     </style>
 </head>
 <body id="app-body">
@@ -194,52 +198,59 @@
 <!-- VISTA: EDITOR PRENSA -->
 <div id="view-prensa" class="view">
     <div style="display: grid; grid-template-columns: 380px 1fr; height: 100%;">
-        <div style="padding:25px; background:#111115; border-right: 1px solid #222; overflow-y:auto;">
-            <h3 class="col-header">Diseñador de Prensa (20 Variantes)</h3>
-            <label style="font-size: 0.7em; color: #666;">PLANTILLA DE ÉLITE</label>
+        <div class="press-controls" style="padding:25px; background:#111115; border-right: 1px solid #222; overflow-y:auto;">
+            <h3 class="col-header">Diseñador de Prensa</h3>
+            
+            <label>PLANTILLA VISUAL</label>
             <select id="prensa-tpl" onchange="updatePrensaCard()">
                 <optgroup label="Modernas">
-                    <option value="tpl-carbon">Carbon Elite (F1 Default)</option>
-                    <option value="tpl-neon">Neon Speed (Nocturno)</option>
-                    <option value="tpl-cyber">Cyber Pink (Ultra Modern)</option>
-                    <option value="tpl-stealth">Stealth Mode (Grayscale)</option>
+                    <option value="tpl-carbon">Carbon Elite</option>
+                    <option value="tpl-neon">Neon Speed</option>
+                    <option value="tpl-cyber">Cyber Pink</option>
+                    <option value="tpl-stealth">Stealth Mode</option>
                 </optgroup>
-                <optgroup label="Escuderías Legendarias">
-                    <option value="tpl-ferrari">Rosso Corsa (Ferrari)</option>
-                    <option value="tpl-redbull">Oracle Dark (Red Bull)</option>
-                    <option value="tpl-papaya">Papaya Orange (McLaren)</option>
-                    <option value="tpl-silver">Silver Arrow (Mercedes)</option>
-                    <option value="tpl-emerald">British Racing Green</option>
-                    <option value="tpl-pink">BWT Edition (Alpine/Pink)</option>
+                <optgroup label="Escuderías">
+                    <option value="tpl-ferrari">Rosso Corsa</option>
+                    <option value="tpl-redbull">Oracle Dark</option>
+                    <option value="tpl-papaya">Papaya Orange</option>
+                    <option value="tpl-silver">Silver Arrow</option>
                 </optgroup>
-                <optgroup label="Premium & Eventos">
-                    <option value="tpl-royal">Royal Gold (Campeón)</option>
-                    <option value="tpl-gold-f1">Carbon Gold (Gala)</option>
-                    <option value="tpl-night">Night Race (GP Las Vegas)</option>
-                    <option value="tpl-starlight">Starlight (GP Qatar)</option>
-                    <option value="tpl-blue">Midnight Edition</option>
-                </optgroup>
-                <optgroup label="Especiales">
-                    <option value="tpl-monza">Classic Monza (Italia)</option>
-                    <option value="tpl-volcano">Volcano Race (Hot)</option>
-                    <option value="tpl-deep">Deep Sea (Oceanic)</option>
-                    <option value="tpl-vintage">Retro 1950s (Vintage)</option>
-                    <option value="tpl-arctic">Arctic Edition (Ice)</option>
+                <optgroup label="Premium">
+                    <option value="tpl-royal">Royal Gold</option>
+                    <option value="tpl-night">Night Race</option>
                 </optgroup>
             </select>
+
+            <label>TIPOGRAFÍA PRINCIPAL</label>
+            <select id="p-font-family" onchange="updatePrensaCard()">
+                <option value="'Orbitron', sans-serif">Orbitron (F1)</option>
+                <option value="'Racing Sans One', cursive">Racing Sans</option>
+                <option value="'Bebas Neue', cursive">Bebas Neue</option>
+                <option value="'Montserrat', sans-serif">Montserrat Black</option>
+                <option value="'Roboto Condensed', sans-serif">Roboto Condensed</option>
+                <option value="'Inter', sans-serif">Inter Bold</option>
+            </select>
+
+            <label>TAMAÑO TITULAR (<span id="val-size-t">1.5</span>em)</label>
+            <input type="range" id="p-size-title" min="0.8" max="3" step="0.1" value="1.5" oninput="updatePrensaCard()">
+
+            <label>TAMAÑO MÁNAGER (<span id="val-size-m">2.3</span>em)</label>
+            <input type="range" id="p-size-manager" min="1" max="4.5" step="0.1" value="2.3" oninput="updatePrensaCard()">
+
+            <label>CONTENIDO</label>
             <input type="text" id="p-edit-badge" value="AVISO OFICIAL" oninput="updatePrensaCard()">
             <input type="text" id="p-edit-title" value="COMUNICADO" oninput="updatePrensaCard()">
             <input type="text" id="p-edit-manager" value="MANAGER NAME" oninput="updatePrensaCard()">
             <input type="text" id="p-edit-details" value="Sugerencias de estrategia" oninput="updatePrensaCard()">
+            
             <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
                 <button class="btn-red" onclick="publicarDesdeEditor('capture-area-prensa')" style="background:var(--accent); color:black;">PUBLICAR EN NOTICIAS 🔥</button>
                 <button class="btn-red" onclick="descargarImg('capture-area-prensa')" style="background:#28a745;">GUARDAR EN GALERÍA</button>
-                <button class="btn-red" onclick="compartirImg('capture-area-prensa')">COMPARTIR DIRECTO</button>
             </div>
         </div>
         <div style="display:flex; justify-content:center; align-items:center; background:#000;">
             <div id="capture-area-prensa" class="tpl-carbon">
-                <div class="n-f1-decor">NEWS</div>
+                <div class="n-f1-decor" id="p-bg-text">NEWS</div>
                 <div><div id="p-badge" class="n-badge" style="background:var(--f1-red); color:white;">AVISO OFICIAL</div><div id="p-title" class="n-main-title">COMUNICADO</div></div>
                 <div id="p-manager" class="n-manager-name">MANAGER NAME</div>
                 <div class="n-footer">
@@ -284,7 +295,14 @@
         btn.classList.add('active');
     }
 
-    // --- MANEJO DE IMÁGENES (GALERÍA) ---
+    // --- ELIMINAR PUBLICACIÓN ---
+    function eliminarPublicacion(id) {
+        if(!confirm("¿Estás seguro de que quieres eliminar esta publicación y todos sus comentarios?")) return;
+        db.ref(`noticias/${id}`).remove();
+        db.ref(`comentarios/${id}`).remove();
+    }
+
+    // --- MANEJO DE IMÁGENES ---
     function handleFile(input) {
         const file = input.files[0];
         if(!file) return;
@@ -343,6 +361,7 @@
         posts.reverse().forEach(n => {
             wall.innerHTML += `
                 <div class="news-post">
+                    ${isAdmin ? `<button class="btn-delete-post" onclick="eliminarPublicacion('${n.id}')">ELIMINAR</button>` : ''}
                     ${n.img ? `<img src="${n.img}" class="news-img">` : ''}
                     <div class="news-content">
                         <div class="news-tag">BOLETÍN OFICIAL</div>
@@ -359,9 +378,6 @@
                             <input type="text" id="input-${n.id}" placeholder="Comentar..." style="margin:0; font-size:0.8em;">
                             <button onclick="enviarComentario('${n.id}')" style="background:var(--f1-red); border:none; color:white; padding:5px 12px; border-radius:4px; cursor:pointer;">✈️</button>
                         </div>
-                    </div>
-                    <div class="admin-only" style="padding:10px; text-align:center;">
-                        <button onclick="db.ref('noticias/${n.id}').remove()" style="background:none; border:none; color:#555; cursor:pointer; font-size:0.7em;">ELIMINAR PUBLICACIÓN</button>
                     </div>
                 </div>
             `;
@@ -383,13 +399,32 @@
         });
     }
 
-    // --- LÓGICA EDITOR ---
+    // --- LÓGICA EDITOR (FUENTES Y TAMAÑOS) ---
     function updatePrensaCard() {
         const area = document.getElementById('capture-area-prensa');
+        const tSize = document.getElementById('p-size-title').value;
+        const mSize = document.getElementById('p-size-manager').value;
+        const font = document.getElementById('p-font-family').value;
+
         area.className = document.getElementById('prensa-tpl').value;
+        
+        // Actualizar valores visuales
+        document.getElementById('val-size-t').innerText = tSize;
+        document.getElementById('val-size-m').innerText = mSize;
+
+        // Aplicar estilos
+        const tEl = document.getElementById('p-title');
+        const mEl = document.getElementById('p-manager');
+
+        tEl.style.fontSize = tSize + "em";
+        tEl.style.fontFamily = font;
+        
+        mEl.style.fontSize = mSize + "em";
+        mEl.style.fontFamily = font;
+
         document.getElementById('p-badge').innerText = document.getElementById('p-edit-badge').value;
-        document.getElementById('p-title').innerText = document.getElementById('p-edit-title').value;
-        document.getElementById('p-manager').innerText = document.getElementById('p-edit-manager').value.toUpperCase();
+        tEl.innerText = document.getElementById('p-edit-title').value;
+        mEl.innerText = document.getElementById('p-edit-manager').value.toUpperCase();
         document.getElementById('p-details').innerText = document.getElementById('p-edit-details').value.toUpperCase();
     }
 
@@ -402,16 +437,7 @@
         });
     }
 
-    function compartirImg(id) {
-        html2canvas(document.getElementById(id), {scale:2}).then(canvas => {
-            canvas.toBlob(blob => {
-                const file = new File([blob], "prensa_igp.png", { type: "image/png" });
-                if (navigator.share) navigator.share({ files: [file] });
-            });
-        });
-    }
-
-    // --- FUNCIÓN RECUPERADA: CLICK EN FEED ACTUALIZA TARJETA ---
+    // --- ACTUALIZAR TARJETA DESDE FEED ---
     function setCaptureInfo(nombre, origen, destino) {
         document.getElementById('f-manager').innerText = nombre.toUpperCase();
         document.getElementById('f-details').innerText = `${origen} ➔ ${destino}`;
@@ -443,7 +469,6 @@
         const p = document.getElementById('admin-team-panel');
         p.style.display = p.style.display === 'none' ? 'flex' : 'none';
     }
-    function eliminarEquipo(cat, team) { if(confirm(`¿Eliminar ${team}?`)) db.ref(`ligas/${cat}/${team}`).remove(); }
     
     function asignar(catDest, teamDest, slot, nombre) {
         if(!isAdmin) return;
@@ -461,7 +486,6 @@
         db.ref(`ligas/${catDest}/${teamDest}/${slot}`).set(nombre);
         if(nombre !== "Libre") {
             db.ref('feed').push({ nombre, origen, destino: teamDest });
-            // Actualización inmediata al asignar
             setCaptureInfo(nombre, origen, teamDest);
         }
     }
@@ -473,7 +497,7 @@
             for(let c in dataCache) {
                 for(let t in dataCache[c]) {
                     const e = dataCache[c][t];
-                    let card = `<div class="team-card"><div class="team-head"><span><small style="color:var(--f1-red)">${c}</small> ${t}</span><span class="admin-only delete-btn" onclick="eliminarEquipo('${c}','${t}')">✕</span></div>`;
+                    let card = `<div class="team-card"><div class="team-head"><span><small style="color:var(--f1-red)">${c}</small> ${t}</span><span class="admin-only delete-btn" onclick="db.ref('ligas/${c}/${t}').remove()">✕</span></div>`;
                     [1,2,3,4].forEach(n => {
                         const act = e['m'+n];
                         card += `<div class="slot"><small style="color:#444; font-size:0.6em;">P[${n}]</small><br><span class="view-only" style="font-size:0.85em;">${act}</span><select class="admin-only" onchange="asignar('${c}','${t}','m${n}', this.value)">${managersDB.map(m => `<option value="${m}" ${m === act ? 'selected' : ''}>${m}</option>`).join('')}</select></div>`;
@@ -490,7 +514,6 @@
             const d = c.val();
             const item = document.createElement('div'); 
             item.className = 'feed-item';
-            // Al hacer clic, actualiza la tarjeta de acciones rápidas
             item.onclick = () => setCaptureInfo(d.nombre, d.origen, d.destino);
             item.innerHTML = `<small style="color:var(--f1-red); font-weight:900;">LIVE</small><br><b>${d.nombre}</b><br><span style="font-size:0.8em; color:#888;">${d.origen} ➔ ${d.destino}</span>`;
             fl.prepend(item);
