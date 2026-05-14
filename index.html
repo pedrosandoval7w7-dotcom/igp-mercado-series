@@ -8,7 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;700&family=Racing+Sans+One&display=swap" rel="stylesheet">
     
     <style>
         :root { --f1-red: #e10600; --bg: #0c0c0e; --card: #18181e; --border: #2d2d37; --text: #e1e1e6; --accent: #00ff88; }
@@ -28,51 +28,55 @@
         .col { background: #111115; border-radius: 8px; border: 1px solid var(--border); display: flex; flex-direction: column; height: 100%; overflow: hidden; }
         .col-header { background: #1c1c24; padding: 12px; font-size: 0.75em; font-weight: 900; text-transform: uppercase; border-bottom: 1px solid var(--border); letter-spacing: 2px; color: var(--f1-red); display: flex; justify-content: space-between; align-items: center; }
 
-        /* Admin logic visibility */
         .admin-only { display: none !important; }
         .admin-active .admin-only { display: flex !important; }
         .admin-active .admin-tab { display: block !important; }
 
-        /* Feed */
+        /* Forms */
+        input, select, textarea { background: #000; border: 1px solid #333; color: white; padding: 10px; border-radius: 4px; width: 100%; box-sizing: border-box; margin-bottom: 10px; font-size: 0.9em; font-family: inherit; }
+        .btn-red { background: var(--f1-red); border: none; color: white; padding: 12px; cursor: pointer; font-weight: bold; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* Feed & Cards */
         .feed-item { border-left: 4px solid var(--accent); background: #1a1a22; margin: 8px; padding: 12px; font-size: 0.8em; border-radius: 4px; cursor: pointer; transition: 0.2s; position: relative; }
-        .feed-item:hover { background: #252530; transform: translateX(5px); border-left-color: var(--f1-red); }
-
-        /* Teams */
+        .feed-item:hover { background: #252530; transform: translateX(5px); }
         .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; padding: 15px; }
         .team-card { background: var(--card); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; position: relative; }
         .team-head { background: linear-gradient(90deg, #1c1c24 0%, #111115 100%); padding: 12px; font-weight: bold; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
         .slot { background: #22222a; margin: 8px; padding: 10px; border-radius: 6px; border: 1px solid transparent; transition: 0.3s; position: relative; }
-        
         .delete-btn { color: #555; cursor: pointer; transition: 0.3s; }
         .delete-btn:hover { color: var(--f1-red); }
 
-        input, select { background: #000; border: 1px solid #333; color: white; padding: 10px; border-radius: 4px; width: 100%; box-sizing: border-box; margin-bottom: 10px; font-size: 0.9em; }
-        .btn-red { background: var(--f1-red); border: none; color: white; padding: 12px; cursor: pointer; font-weight: bold; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* --- PLANTILLAS DE NOTICIAS --- */
+        /* --- PLANTILLAS DE PRENSA (20 VARIANTES) --- */
         #capture-area, #capture-area-prensa { 
             width: 340px; height: 440px; position: relative; 
             padding: 25px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;
-            overflow: hidden; border: 1px solid #333;
+            overflow: hidden; border: 1px solid #333; flex-shrink: 0;
         }
 
+        /* Definiciones de Estilos */
         .tpl-carbon { background: #000; background-image: linear-gradient(45deg, #0a0a0a 25%, #111 25%, #111 50%, #0a0a0a 50%, #0a0a0a 75%, #111 75%, #111 100%); background-size: 4px 4px; border-left: 10px solid var(--f1-red) !important; }
-        .tpl-carbon .n-manager-name { color: white; text-shadow: 0 0 10px rgba(225, 6, 0, 0.5); }
-        .tpl-carbon::before { content:''; position:absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(to bottom, rgba(225,6,0,0.1), transparent); }
-
-        .tpl-neon { background: #000; border: 1px solid #00ff88 !important; }
-        .tpl-neon .n-badge { background: #00ff88; color: #000; }
-        .tpl-neon .n-manager-name { color: #00ff88; font-family: 'Orbitron'; }
-        .tpl-neon .n-main-title { color: #fff; }
-        .tpl-neon::after { content:''; position:absolute; bottom:-50px; right:-50px; width:150px; height:150px; background: #00ff88; filter: blur(80px); opacity: 0.3; }
-
+        .tpl-neon { background: #000; border: 1px solid var(--accent) !important; box-shadow: inset 0 0 20px rgba(0,255,136,0.2); }
         .tpl-royal { background: #050505; border: 2px solid #d4af37 !important; }
-        .tpl-royal .n-badge { background: #d4af37; color: #000; }
-        .tpl-royal .n-manager-name { color: #d4af37; letter-spacing: 2px; }
-
         .tpl-blue { background: #000510; border-right: 10px solid #0052cc !important; }
-        .tpl-blue .n-badge { background: #0052cc; }
-        .tpl-blue .n-manager-name { color: #fff; border-bottom: 2px solid #0052cc; display: inline-block; padding-bottom: 5px; }
+        .tpl-cyber { background: #2b0040; border-bottom: 10px solid #ff00ff !important; }
+        .tpl-monza { background: #fff; border: 8px double #009246 !important; }
+        .tpl-volcano { background: linear-gradient(180deg, #200 0%, #000 100%); border: 1px solid #f00 !important; }
+        .tpl-deep { background: #001a1a; border-left: 10px solid #008080 !important; }
+        .tpl-silver { background: #222; border: 2px solid #aaa !important; background-image: radial-gradient(#333 1px, transparent 1px); background-size: 10px 10px; }
+        .tpl-starlight { background: #000; border: 1px solid #fff !important; }
+        .tpl-papaya { background: #ff8700; border-left: 12px solid #000 !important; color: #000; }
+        .tpl-papaya .n-main-title, .tpl-papaya .n-manager-name { color: #000; }
+        .tpl-redbull { background: #001a30; border-top: 10px solid #ff0000 !important; border-bottom: 10px solid #fcd116 !important; }
+        .tpl-ferrari { background: #c00000; border: 4px solid #000 !important; }
+        .tpl-pink { background: #ff69b4; border-right: 10px solid #00e5ff !important; }
+        .tpl-emerald { background: #003020; border: 2px solid #00ff88 !important; }
+        .tpl-night { background: linear-gradient(to bottom, #000 60%, #1a1a2e); border: 1px solid #4d4dff !important; box-shadow: 0 0 40px rgba(77, 77, 255, 0.3); }
+        .tpl-gold-f1 { background: #000; border: 2px solid #ffd700 !important; background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); }
+        .tpl-vintage { background: #f4f1ea; color: #222; border: 10px solid #8b0000 !important; }
+        .tpl-vintage .n-main-title, .tpl-vintage .n-manager-name { color: #222; }
+        .tpl-arctic { background: #e0f7fa; color: #006064; border-left: 12px solid #006064 !important; }
+        .tpl-arctic .n-main-title, .tpl-arctic .n-manager-name { color: #006064; }
+        .tpl-stealth { background: #111; border: 1px solid #222 !important; filter: grayscale(1); }
 
         .n-badge { font-family: 'Orbitron'; font-weight: 900; font-size: 0.6em; padding: 4px 10px; display: inline-block; margin-bottom: 5px; z-index: 10; position: relative; border-radius: 2px; }
         .n-main-title { font-family: 'Orbitron'; font-weight: 900; font-size: 1.5em; text-transform: uppercase; color: white; z-index: 10; position: relative; margin: 0; }
@@ -80,6 +84,23 @@
         .n-details { font-size: 0.7em; font-weight: bold; color: #888; text-transform: uppercase; z-index: 10; position: relative; }
         .n-f1-decor { position:absolute; top:40%; left:50%; transform:translate(-50%,-50%); font-size: 12em; font-weight: 900; color: #0f0f0f; z-index: 1; font-family: 'Orbitron'; opacity: 0.8; font-style: italic; }
         .n-footer { border-top: 1px solid #222; padding-top: 10px; z-index: 10; position: relative; display: flex; justify-content: space-between; align-items: flex-end; }
+
+        /* --- SECCIÓN NOTICIAS --- */
+        .news-container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .news-post { background: var(--card); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 30px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .news-img { width: 100%; max-height: 500px; object-fit: contain; background: #000; display: block; border-bottom: 1px solid var(--border); }
+        .news-content { padding: 20px; }
+        .news-tag { color: var(--f1-red); font-family: 'Orbitron'; font-weight: 900; font-size: 0.7em; margin-bottom: 10px; }
+        .news-title { font-size: 1.8em; font-weight: 900; margin-bottom: 15px; font-family: 'Racing Sans One'; letter-spacing: 1px; }
+        .news-reactions { display: flex; gap: 15px; padding: 15px 20px; background: #13131a; border-top: 1px solid var(--border); }
+        .react-btn { background: #1a1a24; border: 1px solid #333; color: #ccc; padding: 8px 15px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.9em; }
+        .react-btn:hover { background: #252530; border-color: var(--accent); }
+        .news-chat { padding: 20px; background: #0a0a0f; }
+        .chat-msg { margin-bottom: 10px; font-size: 0.85em; border-left: 2px solid var(--f1-red); padding-left: 10px; }
+        .chat-msg b { color: var(--accent); font-size: 0.75em; text-transform: uppercase; display: block; }
+        
+        .upload-area { border: 2px dashed #333; padding: 20px; text-align: center; cursor: pointer; border-radius: 8px; margin-bottom: 10px; transition: 0.3s; }
+        .upload-area:hover { border-color: var(--accent); background: rgba(0,255,136,0.05); }
     </style>
 </head>
 <body id="app-body">
@@ -94,57 +115,31 @@
 
 <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('mercado', this)">Mercado & Equipos</button>
+    <button class="tab-btn" onclick="switchTab('noticias', this)" style="color:var(--accent)">🔥 NOTICIAS</button>
     <button class="tab-btn" onclick="switchTab('db', this)">Base de Datos</button>
     <button class="tab-btn admin-tab" onclick="switchTab('prensa', this)" style="display:none; color: #ffeb3b;">⚡ EDITOR DE PRENSA</button>
 </div>
 
+<!-- VISTA: MERCADO -->
 <div id="view-mercado" class="view active">
     <div class="main-container">
         <div class="col">
             <div class="col-header">Mercado Live</div>
             <div id="feed-list" style="overflow-y:auto; flex-grow: 1;"></div>
         </div>
-
         <div class="col">
-            <div class="col-header">
-                Gestión de Equipos
-                <button class="admin-only" onclick="toggleAddTeam()" style="font-size:0.6em; background:var(--accent); color:black; border:none; padding:4px 8px; border-radius:3px; cursor:pointer;">+ NUEVO EQUIPO</button>
-            </div>
+            <div class="col-header">Equipos <button class="admin-only" onclick="toggleAddTeam()" style="font-size:0.6em; background:var(--accent); color:black; border:none; padding:4px 8px; border-radius:3px; cursor:pointer;">+ NUEVO</button></div>
             <div id="admin-team-panel" class="admin-only" style="padding:15px; flex-direction: column; background:#1a1a24; display:none;">
                 <input type="text" id="new-team" placeholder="Nombre Equipo">
-                <input type="text" id="new-ceo" placeholder="Nombre CEO">
-                <!-- CATEGORÍAS CORREGIDAS -->
-                <select id="new-cat">
-                    <option>F1</option>
-                    <option>F2</option>
-                    <option>F3</option>
-                    <option>F4</option>
-                    <option>F5</option>
-                    <option>K6</option>
-                </select>
+                <input type="text" id="new-ceo" placeholder="CEO">
+                <select id="new-cat"><option>F1</option><option>F2</option><option>F3</option><option>F4</option><option>F5</option><option>K6</option></select>
                 <button class="btn-red" onclick="crearEquipo()">REGISTRAR</button>
             </div>
             <div id="team-grid" class="card-grid"></div>
         </div>
-
         <div class="col">
-            <div class="col-header">Vista Previa Noticia</div>
+            <div class="col-header">Acciones Rápidas</div>
             <div style="padding: 15px; display: flex; flex-direction: column; align-items: center; gap: 10px; background: #050505; height: 100%;">
-                
-                <div class="admin-only" style="width: 100%; flex-direction: column; gap: 5px;">
-                    <label style="font-size: 0.6em; color: #666; font-weight: bold;">PLANTILLA</label>
-                    <select id="fichaje-tpl" onchange="updateFichajeCard()">
-                        <option value="tpl-carbon">F1 Carbon (Red)</option>
-                        <option value="tpl-neon">Neon Speed (Green)</option>
-                        <option value="tpl-royal">Royal Elite (Gold)</option>
-                        <option value="tpl-blue">Midnight (Blue)</option>
-                    </select>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
-                        <button class="btn-red" onclick="descargarImg('capture-area')" style="background:#28a745; font-size: 0.7em; padding: 8px;">DESCARGAR</button>
-                        <button class="btn-red" onclick="compartirImg('capture-area')" style="font-size: 0.7em; padding: 8px;">COMPARTIR</button>
-                    </div>
-                </div>
-
                 <div id="capture-area" class="tpl-carbon">
                     <div class="n-f1-decor">IGP</div>
                     <div>
@@ -154,17 +149,40 @@
                     <div id="f-manager" class="n-manager-name">MANAGER<br>IGP</div>
                     <div class="n-footer">
                         <div>
-                            <div id="f-details" class="n-details">LISTO PARA COMPETIR</div>
+                            <div id="f-details" class="n-details">Sugerencias de estrategia</div>
                             <div style="font-size: 0.55em; color: var(--f1-red); font-weight: 900; letter-spacing: 2px; font-family:'Orbitron';">INTERCONTINENTAL SERIES</div>
                         </div>
                     </div>
                 </div>
-                <p class="view-only" style="font-size: 0.6em; color: #444; text-align: center;">Último fichaje procesado automáticamente.</p>
+                <div class="admin-only" style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="btn-red" onclick="descargarImg('capture-area')" style="background:#28a745; font-size:0.7em;">DESCARGAR</button>
+                    <button class="btn-red" onclick="publicarDesdeEditor('capture-area')" style="background:var(--accent); color:black; font-size:0.7em;">PUBLICAR MURO</button>
+                </div>
+                <p style="font-size:0.6em; color:#555; text-align:center;">Toca un movimiento del Mercado Live para actualizar la tarjeta.</p>
             </div>
         </div>
     </div>
 </div>
 
+<!-- VISTA: NOTICIAS -->
+<div id="view-noticias" class="view">
+    <div class="admin-only news-container" style="background:#1a1a24; margin-bottom:20px; border-radius:12px; padding:25px; border:1px solid var(--accent);">
+        <h2 style="margin-top:0; color:var(--accent); font-family:'Orbitron'; font-size:1em;">PUBLICAR EN EL MURO 🔥</h2>
+        <input type="text" id="n-post-title" placeholder="Titular de la noticia...">
+        <textarea id="n-post-desc" rows="2" placeholder="Descripción breve..."></textarea>
+        
+        <div class="upload-area" onclick="document.getElementById('n-post-file').click()">
+            <div id="upload-status">📸 Seleccionar foto de galería</div>
+            <input type="file" id="n-post-file" hidden accept="image/*" onchange="handleFile(this)">
+        </div>
+        <img id="preview-upload" style="width:100%; border-radius:8px; margin-bottom:10px; display:none;">
+        
+        <button class="btn-red" id="btn-publish-news" onclick="publicarNoticia()" style="background:var(--accent); color:black;">LANZAR NOTICIA OFICIAL</button>
+    </div>
+    <div id="news-wall" class="news-container"></div>
+</div>
+
+<!-- VISTA: BASE DE DATOS -->
 <div id="view-db" class="view">
     <div class="admin-only" style="padding:20px; background:#1a1a24; margin:15px; border-radius:8px;">
         <input type="text" id="db-name" placeholder="Nombre del manager">
@@ -173,50 +191,59 @@
     <div id="db-list" class="card-grid"></div>
 </div>
 
+<!-- VISTA: EDITOR PRENSA -->
 <div id="view-prensa" class="view">
     <div style="display: grid; grid-template-columns: 380px 1fr; height: 100%;">
-        <div style="padding:25px; background:#111115; border-right: 1px solid #222;">
-            <h3 class="col-header">Prensa Independiente</h3>
-            
-            <label style="font-size: 0.7em; color: #666;">PLANTILLA</label>
+        <div style="padding:25px; background:#111115; border-right: 1px solid #222; overflow-y:auto;">
+            <h3 class="col-header">Diseñador de Prensa (20 Variantes)</h3>
+            <label style="font-size: 0.7em; color: #666;">PLANTILLA DE ÉLITE</label>
             <select id="prensa-tpl" onchange="updatePrensaCard()">
-                <option value="tpl-carbon">F1 Carbon</option>
-                <option value="tpl-neon">Neon Speed</option>
-                <option value="tpl-royal">Royal Gold</option>
-                <option value="tpl-blue">Midnight Blue</option>
+                <optgroup label="Modernas">
+                    <option value="tpl-carbon">Carbon Elite (F1 Default)</option>
+                    <option value="tpl-neon">Neon Speed (Nocturno)</option>
+                    <option value="tpl-cyber">Cyber Pink (Ultra Modern)</option>
+                    <option value="tpl-stealth">Stealth Mode (Grayscale)</option>
+                </optgroup>
+                <optgroup label="Escuderías Legendarias">
+                    <option value="tpl-ferrari">Rosso Corsa (Ferrari)</option>
+                    <option value="tpl-redbull">Oracle Dark (Red Bull)</option>
+                    <option value="tpl-papaya">Papaya Orange (McLaren)</option>
+                    <option value="tpl-silver">Silver Arrow (Mercedes)</option>
+                    <option value="tpl-emerald">British Racing Green</option>
+                    <option value="tpl-pink">BWT Edition (Alpine/Pink)</option>
+                </optgroup>
+                <optgroup label="Premium & Eventos">
+                    <option value="tpl-royal">Royal Gold (Campeón)</option>
+                    <option value="tpl-gold-f1">Carbon Gold (Gala)</option>
+                    <option value="tpl-night">Night Race (GP Las Vegas)</option>
+                    <option value="tpl-starlight">Starlight (GP Qatar)</option>
+                    <option value="tpl-blue">Midnight Edition</option>
+                </optgroup>
+                <optgroup label="Especiales">
+                    <option value="tpl-monza">Classic Monza (Italia)</option>
+                    <option value="tpl-volcano">Volcano Race (Hot)</option>
+                    <option value="tpl-deep">Deep Sea (Oceanic)</option>
+                    <option value="tpl-vintage">Retro 1950s (Vintage)</option>
+                    <option value="tpl-arctic">Arctic Edition (Ice)</option>
+                </optgroup>
             </select>
-
-            <label style="font-size: 0.7em; color: #666;">CABECERA</label>
             <input type="text" id="p-edit-badge" value="AVISO OFICIAL" oninput="updatePrensaCard()">
-            
-            <label style="font-size: 0.7em; color: #666;">TITULAR</label>
             <input type="text" id="p-edit-title" value="COMUNICADO" oninput="updatePrensaCard()">
-            
-            <label style="font-size: 0.7em; color: #666;">TEXTO PRINCIPAL</label>
             <input type="text" id="p-edit-manager" value="MANAGER NAME" oninput="updatePrensaCard()">
-            
-            <label style="font-size: 0.7em; color: #666;">SUBTEXTO</label>
             <input type="text" id="p-edit-details" value="Sugerencias de estrategia" oninput="updatePrensaCard()">
-
-            <div style="margin-top: 20px; display: flex; gap: 10px;">
-                <button class="btn-red" onclick="descargarImg('capture-area-prensa')" style="flex:1; background:#28a745;">GUARDAR PNG</button>
-                <button class="btn-red" onclick="compartirImg('capture-area-prensa')" style="flex:1;">COMPARTIR</button>
+            <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn-red" onclick="publicarDesdeEditor('capture-area-prensa')" style="background:var(--accent); color:black;">PUBLICAR EN NOTICIAS 🔥</button>
+                <button class="btn-red" onclick="descargarImg('capture-area-prensa')" style="background:#28a745;">GUARDAR EN GALERÍA</button>
+                <button class="btn-red" onclick="compartirImg('capture-area-prensa')">COMPARTIR DIRECTO</button>
             </div>
         </div>
-
         <div style="display:flex; justify-content:center; align-items:center; background:#000;">
             <div id="capture-area-prensa" class="tpl-carbon">
                 <div class="n-f1-decor">NEWS</div>
-                <div>
-                    <div id="p-badge" class="n-badge" style="background:var(--f1-red); color:white;">AVISO OFICIAL</div>
-                    <div id="p-title" class="n-main-title">COMUNICADO</div>
-                </div>
+                <div><div id="p-badge" class="n-badge" style="background:var(--f1-red); color:white;">AVISO OFICIAL</div><div id="p-title" class="n-main-title">COMUNICADO</div></div>
                 <div id="p-manager" class="n-manager-name">MANAGER NAME</div>
                 <div class="n-footer">
-                    <div>
-                        <div id="p-details" class="n-details">SUGERENCIAS DE ESTRATEGIA</div>
-                        <div style="font-size: 0.55em; color: var(--f1-red); font-weight: 900; letter-spacing: 2px; font-family:'Orbitron';">INTERCONTINENTAL PRESS</div>
-                    </div>
+                    <div><div id="p-details" class="n-details">SUGERENCIAS DE ESTRATEGIA</div><div style="font-size:0.55em; color:var(--f1-red); font-weight:900; letter-spacing:2px; font-family:'Orbitron';">INTERCONTINENTAL PRESS</div></div>
                 </div>
             </div>
         </div>
@@ -224,6 +251,7 @@
 </div>
 
 <script>
+    // --- FIREBASE CONFIG ---
     const firebaseConfig = {
         apiKey: "AIzaSyBIo1hhtqKMSsBRN2b0b4k3taWugegbo8A",
         authDomain: "igp-mercado-live.firebaseapp.com",
@@ -239,6 +267,7 @@
     let isAdmin = false;
     let managersDB = ["Libre"];
     let dataCache = {};
+    let lastImageBase64 = null;
 
     function checkAdmin() {
         if(document.getElementById('pass').value === "IGP2026") {
@@ -248,11 +277,6 @@
         } else { alert("Acceso denegado."); }
     }
 
-    function toggleAddTeam() {
-        const p = document.getElementById('admin-team-panel');
-        p.style.display = p.style.display === 'none' ? 'flex' : 'none';
-    }
-
     function switchTab(tabId, btn) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -260,11 +284,106 @@
         btn.classList.add('active');
     }
 
-    function updateFichajeCard() {
-        const area = document.getElementById('capture-area');
-        area.className = document.getElementById('fichaje-tpl').value;
+    // --- MANEJO DE IMÁGENES (GALERÍA) ---
+    function handleFile(input) {
+        const file = input.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        document.getElementById('upload-status').innerText = "Procesando imagen...";
+        reader.onload = (e) => {
+            lastImageBase64 = e.target.result;
+            const prev = document.getElementById('preview-upload');
+            prev.src = lastImageBase64;
+            prev.style.display = 'block';
+            document.getElementById('upload-status').innerText = "✅ Imagen lista";
+        };
+        reader.readAsDataURL(file);
     }
 
+    function publicarNoticia() {
+        const title = document.getElementById('n-post-title').value;
+        const desc = document.getElementById('n-post-desc').value;
+        const btn = document.getElementById('btn-publish-news');
+        if(!title) return alert("Pon un título");
+        btn.disabled = true;
+        btn.innerText = "SUBIENDO...";
+        db.ref('noticias').push({
+            title, desc, img: lastImageBase64, date: Date.now(), likes: 0, fires: 0
+        }).then(() => {
+            document.getElementById('n-post-title').value = "";
+            document.getElementById('n-post-desc').value = "";
+            document.getElementById('preview-upload').style.display = 'none';
+            document.getElementById('upload-status').innerText = "📸 Seleccionar foto de galería";
+            lastImageBase64 = null;
+            btn.disabled = false;
+            btn.innerText = "LANZAR NOTICIA OFICIAL";
+        });
+    }
+
+    function publicarDesdeEditor(id) {
+        if(!confirm("¿Publicar este diseño directamente en el muro de noticias?")) return;
+        const area = document.getElementById(id);
+        html2canvas(area, { scale: 2 }).then(canvas => {
+            const base64 = canvas.toDataURL("image/png");
+            db.ref('noticias').push({
+                title: "COMUNICADO OFICIAL",
+                desc: "Prensa IGP Intercontinental",
+                img: base64,
+                date: Date.now(), likes: 0, fires: 0
+            }).then(() => alert("¡Publicado en el muro con éxito!"));
+        });
+    }
+
+    // --- RENDER NOTICIAS ---
+    db.ref('noticias').on('value', snap => {
+        const wall = document.getElementById('news-wall');
+        wall.innerHTML = "";
+        let posts = [];
+        snap.forEach(c => { posts.push({id: c.key, ...c.val()}); });
+        posts.reverse().forEach(n => {
+            wall.innerHTML += `
+                <div class="news-post">
+                    ${n.img ? `<img src="${n.img}" class="news-img">` : ''}
+                    <div class="news-content">
+                        <div class="news-tag">BOLETÍN OFICIAL</div>
+                        <div class="news-title">${n.title}</div>
+                        <div style="color:#aaa; font-size:0.9em;">${n.desc}</div>
+                    </div>
+                    <div class="news-reactions">
+                        <button class="react-btn" onclick="reaccionar('${n.id}', 'likes')">🏎️ <span>${n.likes || 0}</span></button>
+                        <button class="react-btn" onclick="reaccionar('${n.id}', 'fires')">🔥 <span>${n.fires || 0}</span></button>
+                    </div>
+                    <div class="news-chat">
+                        <div id="history-${n.id}" style="max-height:150px; overflow-y:auto; margin-bottom:10px;"></div>
+                        <div style="display:flex; gap:5px;">
+                            <input type="text" id="input-${n.id}" placeholder="Comentar..." style="margin:0; font-size:0.8em;">
+                            <button onclick="enviarComentario('${n.id}')" style="background:var(--f1-red); border:none; color:white; padding:5px 12px; border-radius:4px; cursor:pointer;">✈️</button>
+                        </div>
+                    </div>
+                    <div class="admin-only" style="padding:10px; text-align:center;">
+                        <button onclick="db.ref('noticias/${n.id}').remove()" style="background:none; border:none; color:#555; cursor:pointer; font-size:0.7em;">ELIMINAR PUBLICACIÓN</button>
+                    </div>
+                </div>
+            `;
+            cargarComentarios(n.id);
+        });
+    });
+
+    function reaccionar(id, tipo) { db.ref(`noticias/${id}/${tipo}`).transaction(c => (c || 0) + 1); }
+    function enviarComentario(id) {
+        const val = document.getElementById(`input-${id}`).value;
+        if(val) { db.ref(`comentarios/${id}`).push({ text: val, user: "Mánager" }); document.getElementById(`input-${id}`).value = ""; }
+    }
+    function cargarComentarios(id) {
+        db.ref(`comentarios/${id}`).on('value', snap => {
+            const h = document.getElementById(`history-${id}`); if(!h) return;
+            h.innerHTML = "";
+            snap.forEach(c => { const d = c.val(); h.innerHTML += `<div class="chat-msg"><b>${d.user}</b> ${d.text}</div>`; });
+            h.scrollTop = h.scrollHeight;
+        });
+    }
+
+    // --- LÓGICA EDITOR ---
     function updatePrensaCard() {
         const area = document.getElementById('capture-area-prensa');
         area.className = document.getElementById('prensa-tpl').value;
@@ -274,62 +393,58 @@
         document.getElementById('p-details').innerText = document.getElementById('p-edit-details').value.toUpperCase();
     }
 
-    function autoCargarFichaje(nombre, origen, destino) {
-        document.getElementById('f-manager').innerText = nombre.toUpperCase();
-        document.getElementById('f-details').innerText = `${origen} ➔ ${destino}`;
-    }
-
     function descargarImg(id) {
-        const area = document.getElementById(id);
-        html2canvas(area).then(canvas => {
+        html2canvas(document.getElementById(id), {scale:2}).then(canvas => {
             const link = document.createElement('a');
-            link.download = `IGP_${id}_${Date.now()}.png`;
+            link.download = `IGP_PRENSA_${Date.now()}.png`;
             link.href = canvas.toDataURL();
             link.click();
         });
     }
 
     function compartirImg(id) {
-        const area = document.getElementById(id);
-        html2canvas(area).then(canvas => {
+        html2canvas(document.getElementById(id), {scale:2}).then(canvas => {
             canvas.toBlob(blob => {
-                const file = new File([blob], "noticia.png", { type: "image/png" });
+                const file = new File([blob], "prensa_igp.png", { type: "image/png" });
                 if (navigator.share) navigator.share({ files: [file] });
             });
         });
     }
 
+    // --- FUNCIÓN RECUPERADA: CLICK EN FEED ACTUALIZA TARJETA ---
+    function setCaptureInfo(nombre, origen, destino) {
+        document.getElementById('f-manager').innerText = nombre.toUpperCase();
+        document.getElementById('f-details').innerText = `${origen} ➔ ${destino}`;
+    }
+
+    // --- LÓGICA MERCADO ---
     function registrarEnDB() {
         const n = document.getElementById('db-name').value;
         if(n) db.ref('managers_db').push(n);
         document.getElementById('db-name').value = "";
     }
-
     db.ref('managers_db').on('value', snap => {
         const list = document.getElementById('db-list');
         list.innerHTML = ""; managersDB = ["Libre"];
         snap.forEach(c => {
             managersDB.push(c.val());
-            list.innerHTML += `<div class="slot" style="display:flex; justify-content:space-between; align-items:center;">
-                <span>${c.val()}</span>
-                <span class="admin-only delete-btn" onclick="db.ref('managers_db/${c.key}').remove()">✕</span>
-            </div>`;
+            list.innerHTML += `<div class="slot" style="display:flex; justify-content:space-between;"><span>${c.val()}</span><span class="admin-only delete-btn" onclick="db.ref('managers_db/${c.key}').remove()">✕</span></div>`;
         });
         renderTeams();
     });
-
     function crearEquipo() {
         const t = document.getElementById('new-team').value;
         const c = document.getElementById('new-ceo').value;
         const cat = document.getElementById('new-cat').value;
         if(t && c) db.ref(`ligas/${cat}/${t}`).set({ ceo: c, m1: "Libre", m2: "Libre", m3: "Libre", m4: "Libre" });
-        toggleAddTeam();
+        document.getElementById('admin-team-panel').style.display = 'none';
     }
-
-    function eliminarEquipo(cat, team) {
-        if(confirm(`¿Eliminar equipo ${team}?`)) db.ref(`ligas/${cat}/${team}`).remove();
+    function toggleAddTeam() {
+        const p = document.getElementById('admin-team-panel');
+        p.style.display = p.style.display === 'none' ? 'flex' : 'none';
     }
-
+    function eliminarEquipo(cat, team) { if(confirm(`¿Eliminar ${team}?`)) db.ref(`ligas/${cat}/${team}`).remove(); }
+    
     function asignar(catDest, teamDest, slot, nombre) {
         if(!isAdmin) return;
         let origen = "Agente Libre";
@@ -346,7 +461,8 @@
         db.ref(`ligas/${catDest}/${teamDest}/${slot}`).set(nombre);
         if(nombre !== "Libre") {
             db.ref('feed').push({ nombre, origen, destino: teamDest });
-            autoCargarFichaje(nombre, origen, teamDest);
+            // Actualización inmediata al asignar
+            setCaptureInfo(nombre, origen, teamDest);
         }
     }
 
@@ -357,19 +473,10 @@
             for(let c in dataCache) {
                 for(let t in dataCache[c]) {
                     const e = dataCache[c][t];
-                    let card = `<div class="team-card">
-                        <div class="team-head">
-                            <span><small style="color:var(--f1-red)">${c}</small> ${t}</span>
-                            <span class="admin-only delete-btn" onclick="eliminarEquipo('${c}','${t}')">✕</span>
-                        </div>`;
+                    let card = `<div class="team-card"><div class="team-head"><span><small style="color:var(--f1-red)">${c}</small> ${t}</span><span class="admin-only delete-btn" onclick="eliminarEquipo('${c}','${t}')">✕</span></div>`;
                     [1,2,3,4].forEach(n => {
-                        const actual = e['m'+n];
-                        card += `<div class="slot">
-                            <small style="color:#444; font-size:0.6em;">PILOTO [1-${n}]</small><br>
-                            <span class="view-only" style="font-size:0.85em; font-weight:bold;">${actual}</span>
-                            <select class="admin-only" onchange="asignar('${c}','${t}','m${n}', this.value)">
-                                ${managersDB.map(m => `<option value="${m}" ${m === actual ? 'selected' : ''}>${m}</option>`).join('')}
-                            </select></div>`;
+                        const act = e['m'+n];
+                        card += `<div class="slot"><small style="color:#444; font-size:0.6em;">P[${n}]</small><br><span class="view-only" style="font-size:0.85em;">${act}</span><select class="admin-only" onchange="asignar('${c}','${t}','m${n}', this.value)">${managersDB.map(m => `<option value="${m}" ${m === act ? 'selected' : ''}>${m}</option>`).join('')}</select></div>`;
                     });
                     grid.innerHTML += card + `</div>`;
                 }
@@ -381,15 +488,14 @@
         const fl = document.getElementById('feed-list'); fl.innerHTML = "";
         snap.forEach(c => {
             const d = c.val();
-            const item = document.createElement('div');
+            const item = document.createElement('div'); 
             item.className = 'feed-item';
+            // Al hacer clic, actualiza la tarjeta de acciones rápidas
+            item.onclick = () => setCaptureInfo(d.nombre, d.origen, d.destino);
             item.innerHTML = `<small style="color:var(--f1-red); font-weight:900;">LIVE</small><br><b>${d.nombre}</b><br><span style="font-size:0.8em; color:#888;">${d.origen} ➔ ${d.destino}</span>`;
-            item.onclick = () => autoCargarFichaje(d.nombre, d.origen, d.destino);
             fl.prepend(item);
         });
     });
-
-    renderTeams();
 </script>
 </body>
 </html>
