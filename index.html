@@ -67,6 +67,25 @@
             background: #000;
         }
 
+        /* --- CONTENEDORES DRAGGABLES ABSOLUTOS --- */
+        .draggable-wrapper {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            z-index: 20;
+            padding: 4px;
+            border: 1px dashed transparent;
+            transition: border-color 0.1s;
+        }
+        .draggable-wrapper:hover {
+            border-color: var(--accent);
+        }
+
+        /* Posicionamiento inicial por defecto de textos arrastrables */
+        #p-header-wrap { top: 25px; left: 25px; width: calc(100% - 50px); }
+        #p-manager-wrap { top: 180px; left: 25px; width: calc(100% - 50px); }
+        #p-footer-wrap { bottom: 25px; left: 25px; width: calc(100% - 50px); }
+
         /* --- CATÁLOGO DE 25 PLANTILLAS PROFESIONALES DE MOTORSPORT --- */
         .tpl-carbon { background: #000; background-image: linear-gradient(45deg, #0a0a0a 25%, #111 25%, #111 50%, #0a0a0a 50%, #0a0a0a 75%, #111 75%, #111 100%); background-size: 4px 4px; border-left: 10px solid var(--f1-red) !important; }
         .tpl-neon { background: #000; border: 1px solid var(--accent) !important; box-shadow: inset 0 0 20px rgba(0,255,136,0.2); }
@@ -91,7 +110,8 @@
         .tpl-arctic { background: #e0f7fa; color: #006064; border-left: 12px solid #006064 !important; }
         .tpl-arctic .n-main-title, .tpl-arctic .n-manager-name { color: #006064; }
         .tpl-stealth { background: #111; border: 1px solid #222 !important; filter: grayscale(1); }
-        /* 11 a 25: Nuevas Plantillas de Alto Impacto */
+        
+        /* 11 a 25: Plantillas de Alto Impacto */
         .tpl-suzuka { background: linear-gradient(135deg, #111 0%, #222 100%); border-top: 10px solid #ff1801 !important; border-right: 10px solid #ff1801 !important; }
         .tpl-imola { background: #0a0a0c; border: 3px solid #ff0055 !important; border-left: 12px solid #ff0055 !important; }
         .tpl-interlagos { background: linear-gradient(135deg, #005020 0%, #000 100%); border-bottom: 12px solid #fcd116 !important; }
@@ -266,9 +286,11 @@
         <div class="press-controls" style="padding:25px; background:#111115; border-right: 1px solid #222; overflow-y:auto;">
             <h3 class="col-header">Diseñador de Prensa</h3>
             
+            <p style="font-size: 0.7em; color: var(--accent); margin: 0 0 15px 0;">💡 Puedes arrastrar y soltar cualquier bloque de texto de la tarjeta de prensa con el ratón o el dedo para ajustar su posición libremente.</p>
+
             <label>PLANTILLA VISUAL PREMIUM</label>
             <select id="prensa-tpl" onchange="updatePrensaCard()">
-                <optgroup label="Estilos Modernas">
+                <optgroup label="Estilos Modernos">
                     <option value="tpl-carbon">Carbon Elite</option>
                     <option value="tpl-neon">Neon Speed</option>
                     <option value="tpl-cyber">Cyber Pink</option>
@@ -343,12 +365,48 @@
         <div style="display:flex; justify-content:center; align-items:center; background:#000;">
             <div id="capture-area-prensa" class="tpl-carbon">
                 <div class="n-f1-decor" id="p-bg-text">NEWS</div>
-                <div><div id="p-badge" class="n-badge" style="background:var(--f1-red); color:white;">AVISO OFICIAL</div><div id="p-title" class="n-main-title">COMUNICADO</div></div>
-                <div id="p-manager" class="n-manager-name">MANAGER NAME</div>
-                <div class="n-footer">
-                    <div><div id="p-details" class="n-details">SUGERENCIAS DE ESTRATEGIA</div><div style="font-size:0.55em; color:var(--f1-red); font-weight:900; letter-spacing:2px; font-family:'Orbitron';">INTERCONTINENTAL PRESS</div></div>
+                
+                <!-- CAPAS DRAGGABLES INDEPENDIENTES -->
+                <div id="p-header-wrap" class="draggable-wrapper">
+                    <div id="p-badge" class="n-badge" style="background:var(--f1-red); color:white;">AVISO OFICIAL</div>
+                    <div id="p-title" class="n-main-title">COMUNICADO</div>
                 </div>
+                
+                <div id="p-manager-wrap" class="draggable-wrapper">
+                    <div id="p-manager" class="n-manager-name">MANAGER NAME</div>
+                </div>
+                
+                <div id="p-footer-wrap" class="draggable-wrapper" style="width: calc(100% - 50px); border-top: 1px solid #222; padding-top: 5px;">
+                    <div>
+                        <div id="p-details" class="n-details">SUGERENCIAS DE ESTRATEGIA</div>
+                        <div style="font-size:0.55em; color:var(--f1-red); font-weight:900; letter-spacing:2px; font-family:'Orbitron';">INTERCONTINENTAL PRESS</div>
+                    </div>
+                </div>
+                
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- BOTÓN Y VENTANA DE CHAT IA -->
+<div id="ia-chat-wrapper" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000; font-family: 'Inter', sans-serif;">
+    <button onclick="toggleIAChat()" style="background: var(--f1-red); color: white; border: none; width: 60px; height: 60px; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 15px rgba(225, 6, 0, 0.4); display: flex; align-items: center; justify-content: center; font-size: 24px;">
+        🤖
+    </button>
+    
+    <div id="ia-chat-window" style="display: none; position: absolute; bottom: 70px; right: 0; width: 350px; height: 450px; background: #111115; border: 1px solid var(--border); border-radius: 12px; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
+        <div style="background: var(--f1-red); padding: 15px; font-family: 'Orbitron'; font-weight: 900; font-size: 0.8em; display: flex; justify-content: space-between;">
+            <span>SISTEMA DE ASISTENCIA IA</span>
+            <span onclick="toggleIAChat()" style="cursor:pointer;">✕</span>
+        </div>
+        <div id="ia-messages" style="flex-grow: 1; padding: 15px; overflow-y: auto; font-size: 0.85em; display: flex; flex-direction: column; gap: 10px; background: #08080a;">
+            <div style="background: #1a1a24; padding: 10px; border-radius: 8px; border-left: 3px solid var(--accent);">
+                <b>IA:</b> Saludos, Mánager. Soy el asistente oficial de la Intercontinental Series. ¿En qué puedo apoyarle hoy con respecto a la liga, el mercado o las estadísticas?
+            </div>
+        </div>
+        <div style="padding: 10px; background: #111115; border-top: 1px solid var(--border); display: flex; gap: 5px;">
+            <input type="text" id="ia-input" placeholder="Escriba su consulta..." style="margin: 0; flex-grow: 1; border-radius: 20px; padding: 8px 15px;" onkeypress="if(event.key === 'Enter') askIA()">
+            <button onclick="askIA()" style="background: var(--accent); border: none; color: black; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer;">ENVIAR</button>
         </div>
     </div>
 </div>
@@ -372,12 +430,16 @@
     let dataCache = {};
     let lastImageBase64 = null;
 
+    // Clave de API de Gemini
+    const GEMINI_API_KEY = ""; 
+
     function checkAdmin() {
         if(document.getElementById('pass').value === "IGP2026") {
             isAdmin = true;
             document.getElementById('app-body').classList.add('admin-active');
             renderTeams();
             renderStats();
+            db.ref('noticias').once('value', () => {});
         } else { alert("Acceso denegado."); }
     }
 
@@ -486,7 +548,7 @@
         });
     }
 
-    // --- EDITOR ---
+    // --- EDITOR DE PRENSA ---
     function updatePrensaCard() {
         const area = document.getElementById('capture-area-prensa');
         const tSize = document.getElementById('p-size-t').value;
@@ -512,7 +574,7 @@
     }
 
     function descargarImg(id) {
-        html2canvas(document.getElementById(id), {scale:2}).then(canvas => {
+        html2canvas(document.getElementById(id), {scale:2, useCORS:true, allowTaint:true}).then(canvas => {
             const link = document.createElement('a');
             link.download = `IGP_${Date.now()}.png`;
             link.href = canvas.toDataURL();
@@ -681,6 +743,162 @@
             `;
         });
     });
+
+    // --- LÓGICA DE ELEMENTOS ARRASTRABLES (DRAG AND DROP) ---
+    function makeElementDraggable(elmnt, container) {
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        elmnt.onmousedown = dragMouseDown;
+        elmnt.ontouchstart = dragMouseDown;
+
+        function dragMouseDown(e) {
+            e = e || window.event;
+            // No prevenir acción si el elemento pulsado es un selector o entrada de texto
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') {
+                e.preventDefault();
+            }
+            const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+            pos3 = clientX;
+            pos4 = clientY;
+            document.onmouseup = closeDragElement;
+            document.ontouchend = closeDragElement;
+            document.onmousemove = elementDrag;
+            document.ontouchmove = elementDrag;
+        }
+
+        function elementDrag(e) {
+            e = e || window.event;
+            const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+            pos1 = pos3 - clientX;
+            pos2 = pos4 - clientY;
+            pos3 = clientX;
+            pos4 = clientY;
+            
+            let newTop = elmnt.offsetTop - pos2;
+            let newLeft = elmnt.offsetLeft - pos1;
+            
+            // Límites para que no salga del contenedor
+            const maxTop = container.offsetHeight - elmnt.offsetHeight;
+            const maxLeft = container.offsetWidth - elmnt.offsetWidth;
+            
+            if (newTop < 0) newTop = 0;
+            if (newTop > maxTop) newTop = maxTop;
+            if (newLeft < 0) newLeft = 0;
+            if (newLeft > maxLeft) newLeft = maxLeft;
+
+            elmnt.style.top = newTop + "px";
+            elmnt.style.left = newLeft + "px";
+        }
+
+        function closeDragElement() {
+            document.onmouseup = null;
+            document.onmousemove = null;
+            document.ontouchend = null;
+            document.ontouchmove = null;
+        }
+    }
+
+    // Inicializar draggables de la plantilla de prensa
+    const containerPrensa = document.getElementById('capture-area-prensa');
+    makeElementDraggable(document.getElementById('p-header-wrap'), containerPrensa);
+    makeElementDraggable(document.getElementById('p-manager-wrap'), containerPrensa);
+    makeElementDraggable(document.getElementById('p-footer-wrap'), containerPrensa);
+
+
+    // --- CHAT DE LA IA CON CONTEXTO COMPLETO Y REAL ---
+    function toggleIAChat() {
+        const win = document.getElementById('ia-chat-window');
+        win.style.display = win.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    async function askIA() {
+        const input = document.getElementById('ia-input');
+        const msgContainer = document.getElementById('ia-messages');
+        const query = input.value.trim();
+        
+        if (!query) return;
+
+        // Mostrar pregunta del usuario en pantalla
+        msgContainer.innerHTML += `<div style="align-self: flex-end; background: #2d2d37; padding: 10px; border-radius: 8px;"><b>Tú:</b> ${query}</div>`;
+        input.value = "";
+        msgContainer.scrollTop = msgContainer.scrollHeight;
+
+        // RECOPILACIÓN COMPLETA Y DETALLADA DE LA BASE DE DATOS DE LA LIGA PARA GEMINI
+        let contextoLiga = "DATOS OFICIALES EN TIEMPO REAL DE LA LIGA INTERCONTINENTAL SERIES (IGP MANAGER):\n\n";
+        
+        // 1. Clasificación completa y Equipos (Ligas)
+        try {
+            const ligasSnap = await db.ref('ligas').once('value');
+            const ligasData = ligasSnap.val() || {};
+            contextoLiga += "--- CLASIFICACIONES DE LOS EQUIPOS POR CATEGORÍA ---\n";
+            for (let cat in ligasData) {
+                contextoLiga += `Categoría ${cat}:\n`;
+                for (let team in ligasData[cat]) {
+                    const info = ligasData[cat][team];
+                    contextoLiga += `  * Escudería: ${team} | Manager CEO: ${info.ceo || 'Sin CEO'} | Puntos Actuales: ${info.points || 0} Pts. (Posición previa: ${info.prevPos || 'N/A'})\n`;
+                    contextoLiga += `    Alineación Pilotos: [P1: ${info.m1 || 'Libre'}, P2: ${info.m2 || 'Libre'}, P3: ${info.m3 || 'Libre'}, P4: ${info.m4 || 'Libre'}]\n`;
+                }
+            }
+        } catch(e) { console.error("Error cargando ligas para IA", e); }
+
+        // 2. Últimas noticias publicadas
+        try {
+            const noticiasSnap = await db.ref('noticias').limitToLast(5).once('value');
+            contextoLiga += "\n--- BOLETINES Y COMUNICADOS EN EL MURO DE NOTICIAS ---\n";
+            noticiasSnap.forEach(n => {
+                contextoLiga += `- ${n.val().title}: ${n.val().desc}\n`;
+            });
+        } catch(e) { console.error("Error cargando noticias para IA", e); }
+
+        // 3. Historial de Campeones registrados
+        try {
+            const histSnap = await db.ref('historial_campeones').once('value');
+            contextoLiga += "\n--- HISTORIAL DE CAMPEONES DE LA LIGA ---\n";
+            histSnap.forEach(h => {
+                const data = h.val();
+                contextoLiga += `- Categoría ${data.cat}: Campeón ${data.name} (Registrado el ${data.date})\n`;
+            });
+        } catch(e) { console.error("Error cargando campeones para IA", e); }
+
+        try {
+            // Petición al modelo de la plataforma Gemini con todo el contexto real
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: `Eres el Asistente Profesional e Ingeniero de Datos oficial de la liga 'Intercontinental Series' de IGP Manager.
+                            
+                            INSTRUCCIONES IMPORTANTES DE PERSONALIDAD:
+                            - Tu tono debe ser extremadamente profesional, serio, analítico y deportivo.
+                            - NUNCA respondas con frases genéricas como "la información está siendo procesada por los comisarios" o des excusas a menos que te pregunten algo que sea matemáticamente imposible o completamente fuera de lugar.
+                            - Tienes acceso en tiempo real a toda la base de datos de la liga que te adjunto a continuación. Analízala con cuidado para dar respuestas precisas basadas únicamente en esta información.
+                            
+                            BASE DE DATOS REAL DE LA LIGA:
+                            ${contextoLiga}
+                            
+                            Consulta del mánager: ${query}`
+                        }]
+                    }]
+                })
+            });
+
+            const data = await response.json();
+            const respuestaIA = data.candidates?.[0]?.content?.parts?.[0]?.text || "Error al decodificar la señal de transmisión de datos.";
+
+            msgContainer.innerHTML += `
+                <div style="background: #1a1a24; padding: 10px; border-radius: 8px; border-left: 3px solid var(--accent);">
+                    <b>IA:</b> ${respuestaIA}
+                </div>`;
+            msgContainer.scrollTop = msgContainer.scrollHeight;
+
+        } catch (error) {
+            console.error("Error IA:", error);
+            msgContainer.innerHTML += `<div style="color: var(--f1-red);">Fallo en la comunicación con el sistema de asistencia central.</div>`;
+        }
+    }
 
     // --- LLAMADO INICIAL DE FUNCIONES ---
     renderStats();
