@@ -165,12 +165,61 @@
         /* Controles de Prensa */
         .press-controls label { display: block; font-size: 0.65em; color: #888; text-transform: uppercase; margin: 10px 0 5px 0; font-weight: bold; }
         .press-controls input[type="range"] { margin-bottom: 15px; accent-color: var(--f1-red); height: 5px; }
+
+        /* --- NUEVO: ESTILOS PARA EL CONTADOR DE VISITAS --- */
+        .live-counter-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #1a1a24;
+            border: 1px solid var(--border);
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7em;
+            letter-spacing: 1px;
+            color: #aaa;
+        }
+        .counter-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px var(--accent);
+            animation: pulse-live 1.5s infinite;
+        }
+        @keyframes pulse-live {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
 <body id="app-body">
 
 <div class="top-nav">
-    <div style="font-family: 'Orbitron'; font-weight: 900; letter-spacing: 2px;">IGP <span style="color:var(--f1-red)">INTERCONTINENTAL</span></div>
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <div style="font-family: 'Orbitron'; font-weight: 900; letter-spacing: 2px; font-size: 1.1em;">IGP <span style="color:var(--f1-red)">INTERCONTINENTAL</span></div>
+        
+        <!-- CONTADOR DE VISITAS REAL-TIME -->
+        <div class="live-counter-container">
+            <div class="counter-badge">
+                <span class="live-dot"></span>
+                <span>ONLINE: <strong id="online-users" style="color: var(--accent);">1</strong></span>
+            </div>
+            <div style="width: 1px; height: 12px; background: #333;"></div>
+            <div>
+                <span>VISITAS: <strong id="total-views" style="color: #fff;">...</strong></span>
+            </div>
+        </div>
+    </div>
+    
     <div style="display: flex; gap: 8px;">
         <input type="password" id="pass" placeholder="Admin Pass" style="width: 120px; margin: 0; padding: 5px;">
         <button onclick="checkAdmin()" style="background:var(--f1-red); color:white; border:none; padding:5px 15px; cursor:pointer; font-weight:bold; border-radius:4px;">LOGIN</button>
@@ -900,8 +949,45 @@
         }
     }
 
+    // --- NUEVO: LÓGICA DE CONTADOR DE VISITAS EN TIEMPO REAL ---
+    function initTrafficCounters() {
+        const statsRef = db.ref('traffic_stats');
+        const connectedRef = db.ref('traffic_stats/connected');
+        
+        // 1. Contador de Visitas Totales (Incremento una única vez por sesión del usuario)
+        if (!sessionStorage.getItem('igp_visited')) {
+            statsRef.child('total_views').transaction(current => (current || 0) + 1);
+            sessionStorage.setItem('igp_visited', 'true');
+        }
+
+        // Leer total de visitas
+        statsRef.child('total_views').on('value', snap => {
+            const views = snap.val() || 0;
+            document.getElementById('total-views').innerText = Number(views).toLocaleString();
+        });
+
+        // 2. Mánagers en línea (Sistema de Presencia Real-time)
+        const myConnectionsRef = db.ref('traffic_stats/connections').push();
+        const connectedDatabaseRef = db.ref('.info/connected');
+
+        connectedDatabaseRef.on('value', snap => {
+            if (snap.val() === true) {
+                // Al desconectarse, eliminar este ID de la lista automáticamente
+                myConnectionsRef.onDisconnect().remove();
+                myConnectionsRef.set(true);
+            }
+        });
+
+        // Contar el número de conexiones activas
+        db.ref('traffic_stats/connections').on('value', snap => {
+            const onlineCount = snap.numChildren() || 1;
+            document.getElementById('online-users').innerText = onlineCount;
+        });
+    }
+
     // --- LLAMADO INICIAL DE FUNCIONES ---
     renderStats();
+    initTrafficCounters();
 
 </script>
 </body>
